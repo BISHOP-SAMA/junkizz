@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const db = drizzle(pool);
-  const resend = new Resend("re_6uprATPJ_4uUyhgwEYcPgZkZzLH2EiJzv") Resend(process.env.RESEND_API_KEY);
+  const resend = new Resend("re_6uprATPJ_4uUyhgwEYcPgZkZzLH2EiJzv");
 
   try {
     const data = insertSchema.parse(req.body);
