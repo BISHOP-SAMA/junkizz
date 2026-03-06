@@ -17,8 +17,8 @@
       "dest": "/api/applications.ts"
     },
     {
-      "src": "/api/applications/status/(.*)",
-      "dest": "/api/applications/status.ts"
+      "src": "/api/status",
+      "dest": "/api/status.ts"
     },
     {
       "handle": "filesystem"
