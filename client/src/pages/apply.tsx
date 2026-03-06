@@ -22,9 +22,34 @@ const applySchema = z.object({
 
 type ApplyFormValues = z.infer<typeof applySchema>;
 
+const checklistItems = [
+  {
+    label: "Follow Junkies",
+    url: "https://x.com/junkyardonETH",
+  },
+  {
+    label: "Like and Retweet Junkies",
+    url: "https://x.com/i/status/2026422263906435463",
+  },
+  {
+    label: "Quote Junkies",
+    url: "https://x.com/i/status/2026422263906435463",
+  },
+];
+
 export default function Apply() {
   const [isSuccess, setIsSuccess] = useState(false);
+  const [checked, setChecked] = useState<boolean[]>([false, false, false]);
   const { mutateAsync: submitApplication, isPending } = useCreateApplication();
+
+  const toggleCheck = (index: number, url: string) => {
+    window.open(url, "_blank");
+    setChecked((prev) => {
+      const next = [...prev];
+      next[index] = true;
+      return next;
+    });
+  };
 
   const form = useForm<ApplyFormValues>({
     resolver: zodResolver(applySchema),
@@ -42,7 +67,6 @@ export default function Apply() {
       triggerConfetti();
       setIsSuccess(true);
     } catch (error) {
-      // Error handled by mutation and globally usually, but we could add local error state if needed
       console.error(error);
     }
   };
@@ -56,20 +80,11 @@ export default function Apply() {
 
     const interval: any = setInterval(function() {
       const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
+      if (timeLeft <= 0) return clearInterval(interval);
 
       const particleCount = 50 * (timeLeft / duration);
-      confetti({
-        ...defaults, particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-      });
-      confetti({
-        ...defaults, particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-      });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
     }, 250);
   };
 
@@ -80,7 +95,7 @@ export default function Apply() {
       </Link>
 
       <div className="max-w-2xl mx-auto">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
@@ -95,7 +110,7 @@ export default function Apply() {
 
         <AnimatePresence mode="wait">
           {!isSuccess ? (
-            <motion.div 
+            <motion.div
               key="form"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -108,85 +123,88 @@ export default function Apply() {
                   <CheckSquare className="h-6 w-6" /> Mandatory Checklist
                 </h3>
                 <ul className="space-y-3 font-bold text-secondary-foreground/80 text-lg">
-                  <li className="flex items-center gap-3 bg-white/40 p-3 rounded-xl">
-                    <div className="h-6 w-6 rounded-full border-2 border-secondary-foreground flex-shrink-0" />
-                    Follow Junkies
-                  </li>
-                  <li className="flex items-center gap-3 bg-white/40 p-3 rounded-xl">
-                    <div className="h-6 w-6 rounded-full border-2 border-secondary-foreground flex-shrink-0" />
-                    Like and Retweet Junkies
-                  </li>
-                  <li className="flex items-center gap-3 bg-white/40 p-3 rounded-xl">
-                    <div className="h-6 w-6 rounded-full border-2 border-secondary-foreground flex-shrink-0" />
-                    Quote Junkies
-                  </li>
+                  {checklistItems.map((item, index) => (
+                    <li
+                      key={index}
+                      onClick={() => toggleCheck(index, item.url)}
+                      className="flex items-center gap-3 bg-white/40 p-3 rounded-xl cursor-pointer hover:bg-white/60 transition-colors select-none"
+                    >
+                      <motion.div
+                        className="flex-shrink-0"
+                        initial={false}
+                        animate={checked[index] ? { scale: [1.2, 1] } : { scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {checked[index] ? (
+                          <CheckCircle2 className="h-6 w-6 text-green-600" />
+                        ) : (
+                          <div className="h-6 w-6 rounded-full border-2 border-secondary-foreground" />
+                        )}
+                      </motion.div>
+                      <span className={checked[index] ? "line-through opacity-60" : ""}>
+                        {item.label}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               {/* Form Card */}
               <div className="bg-card p-6 sm:p-8 rounded-3xl cartoon-border cartoon-shadow-lg transform -rotate-1">
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  
+
                   <div className="space-y-3">
                     <Label htmlFor="quoteTweet" className="text-lg">Drop your quote tweet here</Label>
-                    <Input 
-                      id="quoteTweet" 
-                      placeholder="https://x.com/..." 
+                    <Input
+                      id="quoteTweet"
+                      placeholder="https://x.com/..."
                       {...form.register("quoteTweet")}
                     />
                     {form.formState.errors.quoteTweet && (
-                      <p className="text-destructive font-bold text-sm">
-                        {form.formState.errors.quoteTweet.message}
-                      </p>
+                      <p className="text-destructive font-bold text-sm">{form.formState.errors.quoteTweet.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-3">
                     <Label htmlFor="favoriteJunk" className="text-lg">What is your favourite Junk?</Label>
-                    <Textarea 
-                      id="favoriteJunk" 
-                      placeholder="Old cereal boxes, broken toys, you name it..." 
+                    <Textarea
+                      id="favoriteJunk"
+                      placeholder="Old cereal boxes, broken toys, you name it..."
                       {...form.register("favoriteJunk")}
                     />
                     {form.formState.errors.favoriteJunk && (
-                      <p className="text-destructive font-bold text-sm">
-                        {form.formState.errors.favoriteJunk.message}
-                      </p>
+                      <p className="text-destructive font-bold text-sm">{form.formState.errors.favoriteJunk.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-3">
                     <Label htmlFor="xUsername" className="text-lg">Enter X username here</Label>
-                    <Input 
-                      id="xUsername" 
-                      placeholder="@yourusername" 
+                    <Input
+                      id="xUsername"
+                      placeholder="@yourusername"
                       {...form.register("xUsername")}
                     />
                     {form.formState.errors.xUsername && (
-                      <p className="text-destructive font-bold text-sm">
-                        {form.formState.errors.xUsername.message}
-                      </p>
+                      <p className="text-destructive font-bold text-sm">{form.formState.errors.xUsername.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-3">
                     <Label htmlFor="evmAddress" className="text-lg">Enter EVM Address here</Label>
-                    <Input 
-                      id="evmAddress" 
-                      placeholder="0x..." 
+                    <Input
+                      id="evmAddress"
+                      placeholder="0x..."
                       className="font-mono"
                       {...form.register("evmAddress")}
                     />
                     {form.formState.errors.evmAddress && (
-                      <p className="text-destructive font-bold text-sm">
-                        {form.formState.errors.evmAddress.message}
-                      </p>
+                      <p className="text-destructive font-bold text-sm">{form.formState.errors.evmAddress.message}</p>
                     )}
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    size="lg" 
+                  <Button
+                    type="submit"
+                    size="lg"
                     className="w-full text-xl py-8 mt-4 bg-accent text-accent-foreground border-foreground"
                     disabled={isPending}
                   >
@@ -201,7 +219,7 @@ export default function Apply() {
               </div>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key="success"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -216,7 +234,6 @@ export default function Apply() {
               <p className="text-xl sm:text-2xl font-bold text-muted-foreground mb-8">
                 You're now a certified Junkie!
               </p>
-              
               <Link href="/">
                 <Button size="lg" className="text-xl px-10 py-6">
                   Back to Junkyard
