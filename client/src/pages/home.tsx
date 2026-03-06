@@ -31,7 +31,7 @@ export default function Home() {
         
         <div className="bg-white px-8 py-4 rounded-full inline-block cartoon-border cartoon-shadow mb-12 transform -rotate-2">
           <p className="text-xl sm:text-2xl font-bold text-foreground">
-            Cartoon Nostalgia. Reborn As NFTs
+            Take a closer step to the junkyard
           </p>
         </div>
 
