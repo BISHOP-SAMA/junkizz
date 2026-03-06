@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Outfit', sans-serif;
+  --font-display: 'Architects Daughter', cursive;
+
+  /* Earthy Nostalgic Cartoon Palette */
+  --background: 43 55% 94%; /* #F9F4E8 - Creamy canvas */
+  --foreground: 25 47% 16%; /* #3D2616 - Deep espresso brown for borders/text */
+  
+  --primary: 11 74% 62%; /* #E56B55 - Retro red/orange */
+  --primary-foreground: 43 55% 94%; 
+  
+  --secondary: 40 79% 56%; /* #E8A838 - Mustard yellow */
+  --secondary-foreground: 25 47% 16%;
+
+  --accent: 73 33% 46%; /* #8B9B4F - Olive green */
+  --accent-foreground: 43 55% 94%;
+
+  --muted: 36 33% 85%; 
+  --muted-foreground: 25 47% 40%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 43 55% 94%;
+
+  --card: 43 55% 96%;
+  --card-foreground: 25 47% 16%;
+  
+  --border: 25 47% 16%;
+  --input: 43 55% 94%;
+  --ring: 11 74% 62%;
+
+  --radius: 1rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary selection:text-primary-foreground;
+    font-family: var(--font-sans);
+    background-image: radial-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Thick retro cartoon shadows */
+  .cartoon-border {
+    @apply border-4 border-foreground;
+  }
+
+  .cartoon-shadow {
+    box-shadow: 4px 4px 0px 0px hsl(var(--foreground));
+  }
+  
+  .cartoon-shadow-lg {
+    box-shadow: 8px 8px 0px 0px hsl(var(--foreground));
+  }
+
+  /* Interactive states for buttons and cards */
+  .cartoon-hover {
+    @apply transition-transform duration-200 ease-out;
+  }
+
+  .cartoon-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px hsl(var(--foreground));
+  }
+
+  .cartoon-hover:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px hsl(var(--foreground));
+  }
+
+  /* Text stroke for readable text over images */
+  .text-stroke {
+    -webkit-text-stroke: 1.5px hsl(var(--foreground));
+    color: hsl(var(--background));
+    text-shadow: 3px 3px 0px hsl(var(--foreground));
+  }
+}
