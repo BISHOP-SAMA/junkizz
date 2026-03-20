@@ -97,7 +97,7 @@ export function FrensDialog({ isOpen, onClose }: FrensDialogProps) {
 
             <h2 className="font-display text-3xl font-bold text-foreground mb-2">Junkies Frens</h2>
             <p className="text-muted-foreground font-medium mb-6">
-              Are you a holder of one of our partner communities?
+              Are you a holder of one of our whitelisted communities?
             </p>
 
             {/* Partner community images */}
