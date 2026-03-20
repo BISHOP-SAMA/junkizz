@@ -15,10 +15,10 @@ interface FrensDialogProps {
 }
 
 const COMMUNITIES = [
-  { name: "D00ds",     image: doodsImg,     greeting: "You're a Junky D00d!" },
-  { name: "Normies",   image: normiesImg,   greeting: "You're a Junky Normie!" },
-  { name: "Bloba",     image: blobaImg,     greeting: "You're a Junky Bloba!" },
-  { name: "Supawcool", image: supawcoolImg, greeting: "You're a Supaw Junkie!" },
+  { name: "D00ds",     image: doodsImg,     greeting: "You're a D00d!" },
+  { name: "Normies",   image: normiesImg,   greeting: "You're a Normie!" },
+  { name: "Bloba",     image: blobaImg,     greeting: "Bloba rules!" },
+  { name: "Supawcool", image: supawcoolImg, greeting: "You're Supawcool!" },
 ];
 
 // Google Sheet published as CSV
