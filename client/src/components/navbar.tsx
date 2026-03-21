@@ -54,7 +54,7 @@ function SpliffSocialDialog({ onClose }: { onClose: () => void }) {
           Spliff Social
         </h2>
         <p className="text-muted-foreground font-medium mb-8">
-          An upcoming social network for holders and select communities.
+          A social network for holders and select communities.
         </p>
 
         <div className="flex justify-center gap-3">
