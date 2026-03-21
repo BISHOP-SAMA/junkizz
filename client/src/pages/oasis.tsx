@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
-import oasisBg from "@assets/Oasis.png";
+import oasisBg from "@assets/Background.png";
 
 // Set your target date here — 10 days from launch
 const TARGET_DATE = new Date("2026-04-01T00:00:00Z");
