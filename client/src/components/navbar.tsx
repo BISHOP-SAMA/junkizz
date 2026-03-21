@@ -85,7 +85,7 @@ export function Navbar() {
   return (
     <>
       {/* Top announcement bar */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-center bg-foreground/90 backdrop-blur-sm px-4 py-2">
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-center bg-transparent px-4 py-2">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
