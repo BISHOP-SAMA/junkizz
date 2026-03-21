@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import oasisBg from "@assets/Oasis.png";
 
 // Set your target date here — 10 days from launch
-const TARGET_DATE = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+const TARGET_DATE = new Date("2026-04-01T00:00:00Z");
 
 function useCountdown(target: Date) {
   const calc = () => {
