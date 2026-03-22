@@ -94,7 +94,7 @@ export default function SpliffSocial() {
         <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 opacity-40 hover:opacity-100 transition-opacity duration-500">
            <div className="flex flex-col items-center">
               <span className="text-2xl mb-1">🎨</span>
-              <span className="text-xs font-black uppercase text-black">NFT Social</span>
+              <span className="text-xs font-black uppercase text-black">CUSTOMIZE</span>
            </div>
            <div className="flex flex-col items-center border-x border-black/10 px-4">
               <span className="text-2xl mb-1">💬</span>
