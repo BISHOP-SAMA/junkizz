@@ -59,7 +59,7 @@ export default function Oasis() {
           >
             The Oasis
           </h1>
-          <p className="text-white/80 font-bold text-xl">Something is brewing...</p>
+          <p className="text-white/80 font-bold text-xl">brewing...</p>
         </div>
 
         {/* Countdown */}
