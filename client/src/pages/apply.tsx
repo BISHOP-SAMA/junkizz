@@ -31,7 +31,7 @@ const checklistItems = [
   },
   {
     label: "Quote Junkies",
-    url: "https://x.com/i/status/2031083248898461727",
+    url: "https://x.com/i/status/2035804464884654214",
   },
 ];
 
