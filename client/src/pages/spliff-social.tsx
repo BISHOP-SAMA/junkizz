@@ -7,34 +7,33 @@ import { Navbar } from "@/components/navbar";
 
 function ComingSoonDialog({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-foreground/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-md"
       />
       <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        transition={{ type: "spring", bounce: 0.5 }}
-        className="relative w-full max-w-sm rounded-3xl bg-card p-8 cartoon-border cartoon-shadow-lg text-center"
+        exit={{ scale: 0.8, opacity: 0, y: 20 }}
+        className="relative w-full max-w-sm rounded-3xl bg-white/90 backdrop-blur-xl p-8 border-4 border-white shadow-2xl text-center"
       >
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-full p-2 hover:bg-muted transition-colors"
+          className="absolute right-4 top-4 rounded-full p-2 hover:bg-black/5 transition-colors"
         >
-          <X className="h-5 w-5 text-foreground" />
+          <X className="h-5 w-5 text-black" />
         </button>
 
-        <div className="text-5xl mb-4">🌿</div>
-        <h2 className="font-display text-3xl font-extrabold text-foreground mb-3">
-          Coming Soon
+        <div className="text-6xl mb-4 animate-bounce">🌿</div>
+        <h2 className="text-3xl font-black text-black mb-3 italic tracking-tight">
+          COMING SOON
         </h2>
-        <p className="text-muted-foreground font-medium">
-          Wallet connect will be available when Spliff Social launches. Stay tuned!
+        <p className="text-black/70 font-bold">
+          The Spliff Social experience is currently being minted. Get your wallet ready.
         </p>
       </motion.div>
     </div>
@@ -45,71 +44,98 @@ export default function SpliffSocial() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden relative bg-emerald-50">
       <Navbar />
 
-      {/* Decorative background blobs */}
-      <div className="absolute top-10 left-10 w-48 h-48 bg-green-300 rounded-full blur-3xl opacity-20" />
-      <div className="absolute bottom-10 right-10 w-64 h-64 bg-green-500 rounded-full blur-3xl opacity-10" />
+      {/* 1. ANIMATED BACKGROUND ELEMENTS (The stuff under the glass) */}
+      <div className="absolute inset-0 z-0">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            x: [0, 50, 0],
+            y: [0, -30, 0] 
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+          className="absolute top-20 left-[10%] w-96 h-96 bg-green-400 rounded-full blur-[100px] opacity-40" 
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.3, 1],
+            x: [0, -40, 0],
+            y: [0, 60, 0] 
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-20 right-[15%] w-[500px] h-[500px] bg-emerald-300 rounded-full blur-[120px] opacity-30" 
+        />
+      </div>
 
-      {/* Back button */}
-      <Link href="/" className="absolute top-24 left-6 inline-flex items-center justify-center p-3 bg-white rounded-full cartoon-border cartoon-shadow text-foreground z-10">
+      {/* 2. THE "TRANSPARENT WHITE STUFF" (The Glass Overlay) */}
+      <div className="absolute inset-0 z-10 bg-white/40 backdrop-blur-[12px] border-inset border-white/20" />
+
+      {/* Back button - Stay visible above glass */}
+      <Link href="/" className="absolute top-24 left-6 inline-flex items-center justify-center p-3 bg-white/80 backdrop-blur-md rounded-full border-2 border-white shadow-lg text-foreground z-30 hover:scale-110 transition-transform">
         <ArrowLeft className="h-6 w-6" />
       </Link>
 
+      {/* 3. CENTERED MAIN CONTENT */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="relative z-10 w-full max-w-2xl mx-auto text-center mt-20"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8 }}
+        className="relative z-20 w-full max-w-2xl mx-auto text-center flex flex-col items-center justify-center"
       >
-        {/* Logo / icon */}
-        <motion.div
-          animate={{ rotate: [-2, 2, -2] }}
-          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-          className="mb-6"
-        >
-          <div className="text-7xl">🌿</div>
-        </motion.div>
+        <div className="mb-4">
+           <motion.span 
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="text-8xl"
+           >
+            🌿
+           </motion.span>
+        </div>
 
-        <h1 className="font-display text-6xl sm:text-7xl font-extrabold text-foreground tracking-widest mb-4">
+        <h1 className="font-display text-7xl sm:text-8xl font-black text-black tracking-tighter mb-4 drop-shadow-sm">
           Spliff Social
         </h1>
 
-        <div className="bg-white px-8 py-4 rounded-full inline-block cartoon-border cartoon-shadow mb-12 transform -rotate-1">
-          <p className="text-lg sm:text-xl font-bold text-foreground">
-            A social network for holders and select communities
-          </p>
-        </div>
+        <p className="text-xl font-bold text-black/60 mb-12 uppercase tracking-widest">
+          On-Chain Sovereignty
+        </p>
 
-        {/* Feature teaser cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-          {[
-            { emoji: "🎨", label: "Share your NFTs" },
-            { emoji: "💬", label: "Community feed" },
-            { emoji: "🏆", label: "Holder perks" },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="bg-white/80 p-5 rounded-2xl cartoon-border cartoon-shadow flex flex-col items-center gap-2"
-            >
-              <span className="text-3xl">{item.emoji}</span>
-              <span className="font-bold text-foreground">{item.label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Connect Wallet button */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        {/* The Hero Action: Connect Wallet */}
+        <motion.div 
+          whileHover={{ scale: 1.05 }} 
+          whileTap={{ scale: 0.95 }}
+          className="relative group"
+        >
+          {/* Subtle glow behind the main button */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-green-400 to-emerald-600 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+          
           <Button
             size="lg"
-            className="text-xl px-14 py-8 bg-green-600 hover:bg-green-700 text-white cartoon-border cartoon-shadow"
+            className="relative text-2xl px-16 py-10 bg-black text-white rounded-full shadow-2xl hover:bg-zinc-900 border-4 border-white/20"
             onClick={() => setDialogOpen(true)}
           >
-            <Wallet className="h-6 w-6 mr-3" />
+            <Wallet className="h-8 w-8 mr-4" />
             Connect Wallet
           </Button>
         </motion.div>
+
+        {/* Feature Teasers (Subtle/Faded to keep focus on button) */}
+        <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 opacity-40 hover:opacity-100 transition-opacity duration-500">
+           <div className="flex flex-col items-center">
+              <span className="text-2xl mb-1">🎨</span>
+              <span className="text-xs font-black uppercase">NFT Social</span>
+           </div>
+           <div className="flex flex-col items-center border-x border-black/10 px-4">
+              <span className="text-2xl mb-1">💬</span>
+              <span className="text-xs font-black uppercase">Encrypted</span>
+           </div>
+           <div className="flex flex-col items-center">
+              <span className="text-2xl mb-1">🏆</span>
+              <span className="text-xs font-black uppercase">Rewards</span>
+           </div>
+        </div>
       </motion.div>
 
       <AnimatePresence>
