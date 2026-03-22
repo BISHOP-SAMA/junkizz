@@ -21,6 +21,14 @@
       "dest": "/api/status.ts"
     },
     {
+      "src": "/api/check-fren",
+      "dest": "/api/check-fren.ts"
+    },
+    {
+      "src": "/api/check-status",
+      "dest": "/api/check-status.ts"
+    },
+    {
       "handle": "filesystem"
     },
     {
