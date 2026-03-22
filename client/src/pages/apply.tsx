@@ -27,11 +27,11 @@ const checklistItems = [
   },
   {
     label: "Like and Retweet Junkies",
-    url: "https://x.com/i/status/2035804464884654214",
+    url: "https://x.com/junkyardonETH/status/2035804464884654214",
   },
   {
     label: "Quote Junkies",
-    url: "https://x.com/i/status/2035804464884654214",
+    url: "https://x.com/junkyardonETH/status/2035804464884654214",
   },
 ];
 
