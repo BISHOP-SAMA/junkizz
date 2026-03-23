@@ -1,7 +1,6 @@
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { useLocation } from "wouter";
 import popupBg from "@assets/junck.jpg";
 
 interface JoinDialogProps {
@@ -10,13 +9,6 @@ interface JoinDialogProps {
 }
 
 export function JoinDialog({ isOpen, onClose }: JoinDialogProps) {
-  const [, setLocation] = useLocation();
-
-  const handleAccept = () => {
-    onClose();
-    setLocation("/apply");
-  };
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -48,31 +40,32 @@ export function JoinDialog({ isOpen, onClose }: JoinDialogProps) {
             {/* Content Layer */}
             <div className="relative z-10 flex flex-col items-center justify-center p-8 sm:p-12 text-center h-full min-h-[400px]">
               <h2
-                className="mb-8 font-display text-4xl sm:text-5xl font-extrabold leading-tight tracking-wider text-white"
+                className="mb-4 font-display text-4xl sm:text-5xl font-extrabold leading-tight tracking-wider text-white"
                 style={{
                   textShadow:
                     "2px 2px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000, 0px 4px 12px rgba(0,0,0,0.8)",
                 }}
               >
-                Welcome to the Junkyard
+                Registration Closed
               </h2>
+
+              <p
+                className="mb-8 text-lg sm:text-xl font-bold text-white/90"
+                style={{
+                  textShadow: "1px 1px 0px #000, -1px -1px 0px #000",
+                }}
+              >
+                Phase 1 registration is now closed. Stay tuned for the next phase!
+              </p>
               
-              <div className="mt-auto flex flex-col w-full gap-4 sm:flex-row sm:gap-6">
-                <Button 
-                  size="lg" 
-                  variant="default"
-                  onClick={handleAccept}
-                  className="flex-1 text-lg py-6"
-                >
-                  Accept Invite
-                </Button>
+              <div className="mt-auto w-full">
                 <Button 
                   size="lg" 
                   variant="outline"
                   onClick={onClose}
-                  className="flex-1 text-lg py-6 bg-white/90 hover:bg-white backdrop-blur-md"
+                  className="w-full text-lg py-6 bg-white/90 hover:bg-white backdrop-blur-md"
                 >
-                  Decline
+                  Close
                 </Button>
               </div>
             </div>
