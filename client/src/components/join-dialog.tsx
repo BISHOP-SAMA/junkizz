@@ -55,7 +55,7 @@ export function JoinDialog({ isOpen, onClose }: JoinDialogProps) {
                   textShadow: "1px 1px 0px #000, -1px -1px 0px #000",
                 }}
               >
-                Phase 2 registration is now closed. Stay tuned for the next phase!
+                Junklist registration is now officially closed
               </p>
               
               <div className="mt-auto w-full">
