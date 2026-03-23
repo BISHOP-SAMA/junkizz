@@ -8,6 +8,8 @@ import doodsImg from "@assets/Doods.jpg";
 import normiesImg from "@assets/Normies.jpg";
 import blobaImg from "@assets/Bloba.jpg";
 import supawcoolImg from "@assets/Supawcool.jpg";
+import prismImg from "@assets/Prism.jpg";
+import mundosImg from "@assets/Mundos.jpg";
 
 interface FrensDialogProps {
   isOpen: boolean;
@@ -15,10 +17,12 @@ interface FrensDialogProps {
 }
 
 const COMMUNITIES = [
-  { name: "D00ds",     image: doodsImg,     greeting: "You're a D00d!" },
-  { name: "Normies",   image: normiesImg,   greeting: "You're a Normie!" },
-  { name: "Bloba",     image: blobaImg,     greeting: "Bloba's rule!" },
-  { name: "Supawcool", image: supawcoolImg, greeting: "You're Supawcool!" },
+  { name: "D00ds",      image: doodsImg,     greeting: "You're a D00d!" },
+  { name: "Normies",    image: normiesImg,   greeting: "You're a Normie!" },
+  { name: "Bloba",      image: blobaImg,     greeting: "Bloba's rule!" },
+  { name: "Supawcool",  image: supawcoolImg, greeting: "You're Supawcool!" },
+  { name: "PrismJolt",  image: prismImg,     greeting: "You're a PrismJolt!" },
+  { name: "DelMundos",  image: mundosImg,    greeting: "You're a Mundos!" },
 ];
 
 // Google Sheet published as CSV
