@@ -5,35 +5,35 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import confetti from "canvas-confetti";
 import { Link } from "wouter";
-import { ArrowLeft, CheckCircle2, CheckSquare, Loader2, Sparkles } from "lucide-react";
-
+import { ArrowLeft, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useCreateApplication } from "@/hooks/use-applications";
+import bgSrc from "@assets/background.jpg";
+
+const font = "'Helvetica Neue', Helvetica, Arial, sans-serif";
 
 const applySchema = z.object({
   quoteTweet: z.string().url("Please provide a valid URL to your quote tweet"),
   xUsername: z.string().min(2, "Comment link is required"),
-  evmAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Please enter a valid EVM address"),
+  evmAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Please enter a valid EVM address (0x...)"),
 });
 
 type ApplyFormValues = z.infer<typeof applySchema>;
 
 const checklistItems = [
-  {
-    label: "Follow Junkies",
-    url: "https://x.com/junkyardonETH",
-  },
-  {
-    label: "Like and Retweet Junkies",
-    url: "https://x.com/junkyardonETH/status/2035804464884654214",
-  },
-  {
-    label: "Quote Junkies",
-    url: "https://x.com/junkyardonETH/status/2035804464884654214",
-  },
+  { label: "Follow Slogs on X", url: "https://x.com/PlanetSlogss", emoji: "🐦" },
+  { label: "Like & Retweet Slogs", url: "https://x.com/PlanetSlogss", emoji: "🔁" },
+  { label: "Drop a comment on the pinned post", url: "https://x.com/PlanetSlogss", emoji: "💬" },
 ];
+
+const panelStyle = {
+  background: "rgba(15,8,4,0.80)",
+  backdropFilter: "blur(14px)",
+  border: "1px solid rgba(200,120,40,0.25)",
+};
 
 export default function Apply() {
   const [isSuccess, setIsSuccess] = useState(false);
@@ -51,12 +51,19 @@ export default function Apply() {
 
   const form = useForm<ApplyFormValues>({
     resolver: zodResolver(applySchema),
-    defaultValues: {
-      quoteTweet: "",
-      xUsername: "",
-      evmAddress: "",
-    },
+    defaultValues: { quoteTweet: "", xUsername: "", evmAddress: "" },
   });
+
+  const triggerConfetti = () => {
+    const duration = 3000;
+    const end = Date.now() + duration;
+    const colors = ["#f97316", "#fbbf24", "#a78bfa"];
+    (function frame() {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  };
 
   const onSubmit = async (data: ApplyFormValues) => {
     try {
@@ -68,163 +75,235 @@ export default function Apply() {
     }
   };
 
-  const triggerConfetti = () => {
-    const duration = 3 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-    const interval: any = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
-      if (timeLeft <= 0) return clearInterval(interval);
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-    }, 250);
-  };
-
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative">
-      <Link href="/" className="absolute top-6 left-6 sm:top-8 sm:left-8 inline-flex items-center justify-center p-3 bg-white rounded-full cartoon-border cartoon-shadow cartoon-hover text-foreground transition-transform">
-        <ArrowLeft className="h-6 w-6" />
-      </Link>
+    <div
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: `url(${bgSrc})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        fontFamily: font,
+      }}
+    >
+      <div className="absolute inset-0 bg-black/60" />
 
-      <div className="max-w-2xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
-        >
-          <h1 className="font-display text-5xl sm:text-6xl font-extrabold text-foreground mb-4">
-            Join the Junkyard
-          </h1>
-          <p className="text-xl text-muted-foreground font-medium">
-            Complete the steps below to secure your spot.
-          </p>
-        </motion.div>
+      <div className="relative z-10 py-16 px-4 sm:px-6">
+        <Link href="/">
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="absolute top-6 left-6 inline-flex items-center justify-center p-3 rounded-full cursor-pointer"
+            style={{ background: "rgba(249,115,22,0.2)", border: "1px solid rgba(249,115,22,0.4)" }}
+          >
+            <ArrowLeft className="h-5 w-5 text-orange-400" />
+          </motion.div>
+        </Link>
 
-        <AnimatePresence mode="wait">
-          {!isSuccess ? (
-            <motion.div
-              key="form"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="space-y-8"
+        <div className="max-w-2xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-10 pt-8"
+          >
+            <h1
+              className="text-5xl sm:text-6xl font-black tracking-widest text-orange-400 mb-3"
+              style={{ fontFamily: font, textShadow: "0 0 40px rgba(249,115,22,0.5)" }}
             >
-              {/* Checklist Card */}
-              <div className="bg-secondary p-6 sm:p-8 rounded-3xl cartoon-border cartoon-shadow-lg transform rotate-1">
-                <h3 className="font-display text-2xl font-bold text-secondary-foreground mb-4 flex items-center gap-2">
-                  <CheckSquare className="h-6 w-6" /> Mandatory Checklist
-                </h3>
-                <ul className="space-y-3 font-bold text-secondary-foreground/80 text-lg">
-                  {checklistItems.map((item, index) => (
-                    <li
-                      key={index}
-                      onClick={() => toggleCheck(index, item.url)}
-                      className="flex items-center gap-3 bg-white/40 p-3 rounded-xl cursor-pointer hover:bg-white/60 transition-colors select-none"
-                    >
-                      <motion.div
-                        className="flex-shrink-0"
-                        initial={false}
-                        animate={checked[index] ? { scale: [1.2, 1] } : { scale: 1 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {checked[index] ? (
-                          <CheckCircle2 className="h-6 w-6 text-green-600" />
-                        ) : (
-                          <div className="h-6 w-6 rounded-full border-2 border-secondary-foreground" />
-                        )}
-                      </motion.div>
-                      <span className={checked[index] ? "line-through opacity-60" : ""}>
-                        {item.label}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              APPLY TO WL
+            </h1>
+            <p className="text-white/60 font-medium tracking-wider">
+              500 whitelist spots. Don't sleep on it.
+            </p>
+          </motion.div>
 
-              {/* Form Card */}
-              <div className="bg-card p-6 sm:p-8 rounded-3xl cartoon-border cartoon-shadow-lg transform -rotate-1">
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
-                  <div className="space-y-3">
-                    <Label htmlFor="quoteTweet" className="text-lg">Drop your quote tweet here</Label>
-                    <Input
-                      id="quoteTweet"
-                      placeholder="https://x.com/..."
-                      {...form.register("quoteTweet")}
-                    />
-                    {form.formState.errors.quoteTweet && (
-                      <p className="text-destructive font-bold text-sm">{form.formState.errors.quoteTweet.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="xUsername" className="text-lg">Drop a comment and tag a fren</Label>
-                    <Input
-                      id="xUsername"
-                      placeholder="Drop comment link"
-                      {...form.register("xUsername")}
-                    />
-                    {form.formState.errors.xUsername && (
-                      <p className="text-destructive font-bold text-sm">{form.formState.errors.xUsername.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="evmAddress" className="text-lg">Enter EVM Address here</Label>
-                    <Input
-                      id="evmAddress"
-                      placeholder="0x..."
-                      className="font-mono"
-                      {...form.register("evmAddress")}
-                    />
-                    {form.formState.errors.evmAddress && (
-                      <p className="text-destructive font-bold text-sm">{form.formState.errors.evmAddress.message}</p>
-                    )}
-                  </div>
-
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full text-xl py-8 mt-4 bg-accent text-accent-foreground border-foreground"
-                    disabled={isPending}
+          <AnimatePresence mode="wait">
+            {!isSuccess ? (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-6"
+              >
+                {/* Checklist */}
+                <div className="rounded-2xl p-6" style={panelStyle}>
+                  <h3
+                    className="text-xs font-black tracking-widest text-orange-400 uppercase mb-4"
+                    style={{ fontFamily: font }}
                   >
-                    {isPending ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="h-6 w-6 animate-spin" /> Submitting...
-                      </span>
-                    ) : "Submit Application"}
-                  </Button>
+                    REQUIREMENTS
+                  </h3>
+                  <div className="space-y-3">
+                    {checklistItems.map((item, index) => (
+                      <motion.div
+                        key={index}
+                        onClick={() => toggleCheck(index, item.url)}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all"
+                        style={{
+                          background: checked[index]
+                            ? "rgba(249,115,22,0.1)"
+                            : "rgba(255,255,255,0.04)",
+                          border: checked[index]
+                            ? "1px solid rgba(249,115,22,0.4)"
+                            : "1px solid rgba(255,255,255,0.08)",
+                        }}
+                      >
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{
+                            border: checked[index]
+                              ? "2px solid #f97316"
+                              : "2px solid rgba(255,255,255,0.3)",
+                            background: checked[index] ? "#f97316" : "transparent",
+                          }}
+                        >
+                          {checked[index] && <span className="text-white text-xs">✓</span>}
+                        </div>
+                        <span className="text-lg">{item.emoji}</span>
+                        <span
+                          className={`text-sm font-bold ${checked[index] ? "text-orange-400 line-through" : "text-white/80"}`}
+                          style={{ fontFamily: font }}
+                        >
+                          {item.label}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-white/30 mt-4" style={{ fontFamily: font }}>
+                    Click each task to complete it — opens in a new tab
+                  </p>
+                </div>
 
-                </form>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white p-8 sm:p-12 rounded-3xl cartoon-border cartoon-shadow-lg text-center"
-            >
-              <div className="mx-auto w-24 h-24 bg-accent/20 text-accent rounded-full flex items-center justify-center mb-6 cartoon-border">
-                <Sparkles className="h-12 w-12" />
-              </div>
-              <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-4">
-                Congratulations!
-              </h2>
-              <p className="text-xl sm:text-2xl font-bold text-muted-foreground mb-8">
-                You're now a certified Junkie!
-              </p>
-              <Link href="/">
-                <Button size="lg" className="text-xl px-10 py-6">
-                  Back to Junkyard
-                </Button>
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                {/* Form */}
+                <div className="rounded-2xl p-6" style={panelStyle}>
+                  <h3
+                    className="text-xs font-black tracking-widest text-orange-400 uppercase mb-5"
+                    style={{ fontFamily: font }}
+                  >
+                    YOUR APPLICATION
+                  </h3>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="quoteTweet"
+                        className="text-xs font-black tracking-widest text-white/50 uppercase"
+                        style={{ fontFamily: font }}
+                      >
+                        QUOTE TWEET LINK
+                      </Label>
+                      <Input
+                        id="quoteTweet"
+                        placeholder="https://x.com/..."
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-orange-500/60"
+                        style={{ fontFamily: font }}
+                        {...form.register("quoteTweet")}
+                      />
+                      {form.formState.errors.quoteTweet && (
+                        <p className="text-red-400 text-xs font-bold">{form.formState.errors.quoteTweet.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="xUsername"
+                        className="text-xs font-black tracking-widest text-white/50 uppercase"
+                        style={{ fontFamily: font }}
+                      >
+                        COMMENT LINK
+                      </Label>
+                      <Input
+                        id="xUsername"
+                        placeholder="Link to your comment on the post"
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-orange-500/60"
+                        style={{ fontFamily: font }}
+                        {...form.register("xUsername")}
+                      />
+                      {form.formState.errors.xUsername && (
+                        <p className="text-red-400 text-xs font-bold">{form.formState.errors.xUsername.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label
+                        htmlFor="evmAddress"
+                        className="text-xs font-black tracking-widest text-white/50 uppercase"
+                        style={{ fontFamily: font }}
+                      >
+                        EVM WALLET ADDRESS
+                      </Label>
+                      <Input
+                        id="evmAddress"
+                        placeholder="0x..."
+                        className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-orange-500/60 font-mono"
+                        {...form.register("evmAddress")}
+                      />
+                      {form.formState.errors.evmAddress && (
+                        <p className="text-red-400 text-xs font-bold">{form.formState.errors.evmAddress.message}</p>
+                      )}
+                    </div>
+
+                    <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                      <Button
+                        type="submit"
+                        size="lg"
+                        className="w-full text-base py-7 font-black tracking-widest"
+                        disabled={isPending}
+                        style={{
+                          background: "linear-gradient(135deg, #ea580c, #f59e0b)",
+                          fontFamily: font,
+                          boxShadow: "0 0 30px rgba(249,115,22,0.4)",
+                        }}
+                      >
+                        {isPending ? (
+                          <span className="flex items-center gap-2">
+                            <Loader2 className="h-5 w-5 animate-spin" /> SUBMITTING...
+                          </span>
+                        ) : "SUBMIT APPLICATION 🐌"}
+                      </Button>
+                    </motion.div>
+
+                    <p className="text-center text-xs text-white/25" style={{ fontFamily: font }}>
+                      Applications close when all spots are filled. No promises, only vibes.
+                    </p>
+                  </form>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="rounded-2xl p-10 text-center"
+                style={panelStyle}
+              >
+                <div className="text-6xl mb-4">🐌</div>
+                <h2
+                  className="text-4xl font-black text-orange-400 mb-3 tracking-widest"
+                  style={{ fontFamily: font, textShadow: "0 0 30px rgba(249,115,22,0.5)" }}
+                >
+                  SUBMITTED!
+                </h2>
+                <p className="text-white/60 mb-8 font-medium">
+                  Your application is in the queue. We'll announce WL winners on X. Stay slow. Stay steady. Win.
+                </p>
+                <Link href="/">
+                  <Button
+                    size="lg"
+                    className="font-black tracking-widest"
+                    style={{
+                      background: "linear-gradient(135deg, #ea580c, #f59e0b)",
+                      fontFamily: font,
+                    }}
+                  >
+                    BACK TO HOME
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
