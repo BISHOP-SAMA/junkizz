@@ -7,18 +7,20 @@ import { z } from "zod";
 
 const { Pool } = pg;
 
+// 1. Updated Table Definition
 const applications = pgTable("applications", {
   id: serial("id").primaryKey(),
   quoteTweet: text("quote_tweet").notNull(),
-  favoriteJunk: text("favorite_junk").notNull(),
+  favoriteSlog: text("favorite_slog").notNull(), // Changed field name
   xUsername: text("x_username").notNull(),
   evmAddress: text("evm_address").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// 2. Updated Validation Schema
 const insertSchema = z.object({
   quoteTweet: z.string().min(1),
-  favoriteJunk: z.string().min(1),
+  favoriteSlog: z.string().min(1), // Changed field name
   xUsername: z.string().min(1),
   evmAddress: z.string().min(1),
 });
@@ -42,16 +44,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = insertSchema.parse(req.body);
     const [application] = await db.insert(applications).values(data).returning();
 
+    // 3. Updated Email Branding
     await resend.emails.send({
-      from: "Junkyard <onboarding@resend.dev>",
+      from: "Slogs <onboarding@resend.dev>", // Changed from Junkyard
       to: "backyardjunkieseth@gmail.com",
-      subject: "New Junkie Application",
+      subject: "New Slog WL Application", // Changed Subject
       html: `
-        <h2>New Application Received</h2>
-        <p><strong>X Username:</strong> ${data.xUsername}</p>
-        <p><strong>EVM Address:</strong> ${data.evmAddress}</p>
-        <p><strong>Quote Tweet:</strong> ${data.quoteTweet}</p>
-        <p><strong>Favourite Junk:</strong> ${data.favoriteJunk}</p>
+        <div style="font-family: sans-serif; border: 1px solid #f97316; padding: 20px; border-radius: 10px;">
+          <h2 style="color: #f97316;">New Slog Application Received</h2>
+          <p><strong>X Username:</strong> ${data.xUsername}</p>
+          <p><strong>EVM Address:</strong> ${data.evmAddress}</p>
+          <p><strong>Quote Tweet:</strong> ${data.quoteTweet}</p>
+          <p><strong>Favorite Slog Info:</strong> ${data.favoriteSlog}</p>
+          <hr />
+          <p style="font-size: 10px; color: #999;">Sent from the Slogs Application Portal</p>
+        </div>
       `,
     });
 
