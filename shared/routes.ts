@@ -60,3 +60,4 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
 
 export type CreateApplicationInput = z.infer<typeof api.applications.create.input>;
 export type ApplicationResponse = z.infer<typeof api.applications.create.responses[201]>;
+
