@@ -46,10 +46,7 @@ export default function Apply() {
 
   const onSubmit = async (data: ApplyFormValues) => {
     try {
-      await submitApplication({ 
-        ...data, 
-        favoriteSlog: "Slog Season 1" 
-      });
+      await submitApplication(data);
       const duration = 3000;
       const end = Date.now() + duration;
       (function frame() {
