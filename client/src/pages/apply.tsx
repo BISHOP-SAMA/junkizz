@@ -24,8 +24,8 @@ type ApplyFormValues = z.infer<typeof applySchema>;
 
 const checklistItems = [
   { label: "Follow Slogs on X", url: "https://x.com/PlanetSlogss", emoji: "🐦" },
-  { label: "Like & Quote Slogs", url: "https://x.com/PlanetSlogss", emoji: "🔁" },
-  { label: "Drop a comment & tag two fren", url: "https://x.com/PlanetSlogss", emoji: "💬" },
+  { label: "Like & Quote Slogs", url: "https://x.com/i/status/2046664680966328422", emoji: "🔁" },
+  { label: "Drop a comment & tag two fren", url: "https://x.com/i/status/2046664680966328422", emoji: "💬" },
 ];
 
 const panelStyle = {
