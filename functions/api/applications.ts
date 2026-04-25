@@ -19,7 +19,7 @@ const schema = z.object({
 
 export async function onRequestPost(context: any) {
   const { env, request } = context;
-  
+
   if (!env.DATABASE_URL) {
     return new Response(JSON.stringify({ message: 'DATABASE_URL not configured' }), {
       status: 500,
@@ -30,10 +30,17 @@ export async function onRequestPost(context: any) {
   try {
     const body = await request.json();
     const data = schema.parse(body);
+
     const sql = neon(env.DATABASE_URL);
-    const db = drizzle(sql);
-    const [result] = await db.insert(applications).values(data).returning();
-    return new Response(JSON.stringify(result), {
+
+    const result = await sql.query(
+      `INSERT INTO applications (quote_tweet, x_username, evm_address)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [data.quoteTweet, data.xUsername, data.evmAddress]
+    );
+
+    return new Response(JSON.stringify(result.rows[0]), {
       status: 201,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
