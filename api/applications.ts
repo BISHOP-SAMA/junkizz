@@ -1,48 +1,44 @@
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
-import { z } from 'zod';
+import { useMutation } from "@tanstack/react-query";
+import { api, buildUrl, type CreateApplicationInput } from "@shared/routes";
 
-const applications = pgTable('applications', {
-  id: serial('id').primaryKey(),
-  quoteTweet: text('quote_tweet').notNull(),
-  xUsername: text('x_username').notNull(),
-  evmAddress: text('evm_address').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+export function useCreateApplication() {
+  return useMutation({
+    mutationFn: async (data: CreateApplicationInput) => {
+      const res = await fetch(api.applications.create.path, {
+        method: api.applications.create.method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}) as any);
+        // API returns { error: "..." }, fallback to status text
+        throw new Error(body.error || body.message || `Server error: ${res.status}`);
+      }
+      
+      return res.json();
+    },
+  });
+}
 
-const schema = z.object({
-  quoteTweet: z.string().url(),
-  xUsername: z.string().min(1),
-  evmAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
-});
-
-export async function onRequestPost(context: any) {
-  const { env, request } = context;
-  
-  try {
-    const body = await request.json();
-    const data = schema.parse(body);
-    
-    const sql = neon(env.DATABASE_URL);
-    const db = drizzle(sql);
-    
-    const [result] = await db.insert(applications).values(data).returning();
-    
-    return new Response(JSON.stringify(result), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return new Response(
-        JSON.stringify({ message: 'Validation failed', errors: error.errors }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+export function useApplicationStatus() {
+  return useMutation({
+    mutationFn: async (address: string) => {
+      if (!address.trim()) throw new Error("Please enter an EVM address");
+      
+      const url = buildUrl(api.applications.status.path, { address: address.trim() });
+      const res = await fetch(url);
+      
+      if (res.status === 404) {
+        return { status: "not_found" };
+      }
+      
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}) as any);
+        throw new Error(body.error || body.message || "Failed to fetch application status");
+      }
+      
+      return res.json();
     }
-    return new Response(
-      JSON.stringify({ message: 'Internal server error' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
+  });
 }
