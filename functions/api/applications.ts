@@ -1,15 +1,5 @@
 import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
-
-const applications = pgTable('applications', {
-  id: serial('id').primaryKey(),
-  quoteTweet: text('quote_tweet').notNull(),
-  xUsername: text('x_username').notNull(),
-  evmAddress: text('evm_address').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-});
 
 const schema = z.object({
   quoteTweet: z.string().url(),
@@ -33,14 +23,13 @@ export async function onRequestPost(context: any) {
 
     const sql = neon(env.DATABASE_URL);
 
-    const result = await sql.query(
-      `INSERT INTO applications (quote_tweet, x_username, evm_address)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [data.quoteTweet, data.xUsername, data.evmAddress]
-    );
+    const result = await sql`
+      INSERT INTO applications (quote_tweet, x_username, evm_address)
+      VALUES (${data.quoteTweet}, ${data.xUsername}, ${data.evmAddress})
+      RETURNING *
+    `;
 
-    return new Response(JSON.stringify(result.rows[0]), {
+    return new Response(JSON.stringify(result[0] ?? { success: true }), {
       status: 201,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
