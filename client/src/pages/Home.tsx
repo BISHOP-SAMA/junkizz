@@ -1,12 +1,10 @@
 import { motion } from 'framer-motion';
-import { Redirect } from 'wouter';
 import { useAuth } from '../hooks/useAuth';
 import { ASSETS } from '../lib/assets';
 
 export default function Home() {
-  const { user, loading, login } = useAuth();
+  const { user, loading, login, logout } = useAuth();
   if (loading) return null;
-  if (user) return <Redirect to="/game" />;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6" style={{ background: 'linear-gradient(160deg, #FFFBF2 0%, #FFF3DC 55%, #FFFAF0 100%)' }}>
@@ -30,21 +28,56 @@ export default function Home() {
           <div className="h-px w-10 bg-[#FF6B35] opacity-40" />
         </motion.div>
 
-        <motion.button
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          onClick={login}
-          whileHover={{ scale: 1.04, y: -2 }}
-          whileTap={{ scale: 0.95 }}
-          className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-[0.95rem] tracking-wide text-white mb-4"
-          style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', fontFamily: 'Georgia, serif', boxShadow: '0 6px 0 #0a0a1a, 0 12px 28px rgba(26,26,46,0.22)' }}
-        >
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-          </svg>
-          Sign in with X
-        </motion.button>
+        {user ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full space-y-3"
+          >
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img
+                src={user.twitter_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.twitter_handle}`}
+                alt={user.twitter_handle}
+                className="w-10 h-10 rounded-full border-2 border-[#FF6B35]/40"
+              />
+              <span className="text-sm font-black text-[#1a1a2e]">@{user.twitter_handle}</span>
+            </div>
+
+            <motion.button
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.location.href = '/game'}
+              className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-[0.95rem] tracking-wide text-white"
+              style={{ background: 'linear-gradient(135deg, #FF6B35, #FF9500)', fontFamily: 'Georgia, serif', boxShadow: '0 6px 0 #c04a1a, 0 12px 28px rgba(255,107,53,0.22)' }}
+            >
+              Enter Game Hub →
+            </motion.button>
+
+            <button
+              onClick={logout}
+              className="text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-gray-500"
+              style={{ fontFamily: 'monospace' }}
+            >
+              Sign out
+            </button>
+          </motion.div>
+        ) : (
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            onClick={login}
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-[0.95rem] tracking-wide text-white mb-4"
+            style={{ background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)', fontFamily: 'Georgia, serif', boxShadow: '0 6px 0 #0a0a1a, 0 12px 28px rgba(26,26,46,0.22)' }}
+          >
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+            Sign in with X
+          </motion.button>
+        )}
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }} className="text-xs text-gray-400 italic">
           Slow & steady wins the shell 🐚
