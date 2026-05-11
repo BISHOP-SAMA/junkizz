@@ -1,9 +1,11 @@
+const BASE = 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog';
+
 export const ASSETS = {
-  shellblitz:  'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/shellblitz.png',
-  customise:   'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/customise.png',
-  dailyShells: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/daily-shells.png',
-  goldenShell: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/golden-shell.png',
-  slograce:    'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/slograce.png',
-  chestClosed: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/slogchest-closed.png',
-  chestOpen:   'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/slogchest-open.png',
+  shellblitz:    `${BASE}/shellblitz.png`,
+  slograce:      `${BASE}/slograce.png`,
+  customise:     `${BASE}/customise.png`,
+  dailyShells:   `${BASE}/daily-shells.png`,
+  goldenShell:   `${BASE}/golden-shell.png`,
+  chestClosed:   `${BASE}/slogchest-closed.png`,
+  chestOpen:     `${BASE}/slogchest-open.png`,
 };
