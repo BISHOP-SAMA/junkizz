@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import GameLayout from '../components/GameLayout';
+import { ASSETS } from '../lib/assets';
 
 export default function Airdrop() {
   return (
@@ -8,9 +9,10 @@ export default function Airdrop() {
         <motion.div 
           animate={{ y: [0, -10, 0] }} 
           transition={{ duration: 3, repeat: Infinity }} 
-          className="text-6xl mb-6"
+          className="w-48 h-48 mb-6 rounded-3xl overflow-hidden"
+          style={{ boxShadow: '0 20px 60px rgba(139,92,246,0.3)' }}
         >
-          🎁
+          <img src={ASSETS.airdrop} alt="airdrop" className="w-full h-full object-cover" />
         </motion.div>
         <h2 className="text-3xl font-black text-[#1a1a2e] mb-3" style={{ fontFamily: 'Georgia, serif' }}>
           Airdrop
