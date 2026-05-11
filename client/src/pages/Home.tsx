@@ -6,7 +6,7 @@ import { ASSETS } from '../lib/assets';
 export default function Home() {
   const { user, loading, login } = useAuth();
   if (loading) return null;
-  if (user) return <Redirect to="/shell-blitz" />;
+  if (user) return <Redirect to="/game" />;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden px-6" style={{ background: 'linear-gradient(160deg, #FFFBF2 0%, #FFF3DC 55%, #FFFAF0 100%)' }}>
