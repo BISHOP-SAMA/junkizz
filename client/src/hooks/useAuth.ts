@@ -51,10 +51,15 @@ export function useAuth() {
     if (data) setProfile(data as User);
   };
 
-  const login = async () => {
+  const login = async (returnTo?: string) => {
+    const redirectPath = returnTo || '/game';
+    const redirectTo = typeof window !== 'undefined' 
+      ? `${window.location.origin}${redirectPath}` 
+      : undefined;
+
     await supabase.auth.signInWithOAuth({
       provider: 'x',
-      options: { redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/shell-blitz` : undefined },
+      options: { redirectTo },
     });
   };
 
