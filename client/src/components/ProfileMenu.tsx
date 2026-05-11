@@ -39,7 +39,6 @@ export default function ProfileMenu() {
               className="absolute right-0 top-full mt-2 w-72 rounded-2xl z-50 overflow-hidden"
               style={{ background: 'rgba(255,251,242,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,107,53,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}
             >
-              {/* Header */}
               <div className="p-4 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                 <img
                   src={user.twitter_avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.twitter_handle}`}
@@ -52,7 +51,6 @@ export default function ProfileMenu() {
                 </div>
               </div>
 
-              {/* Stats */}
               <div className="p-3 space-y-2">
                 <div className="flex items-center justify-between p-2.5 rounded-xl" style={{ background: 'rgba(255,107,53,0.06)' }}>
                   <div className="flex items-center gap-2">
@@ -79,7 +77,6 @@ export default function ProfileMenu() {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="p-3 pt-0">
                 <button
                   onClick={() => { logout(); setOpen(false); }}
