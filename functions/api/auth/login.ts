@@ -1,6 +1,6 @@
 export async function onRequestGet(context: any) {
   const { env } = context;
-  
+
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: env.TWITTER_CLIENT_ID,
