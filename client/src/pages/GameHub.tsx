@@ -94,7 +94,6 @@ export default function GameHub() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #FFFBF2 0%, #FFF0DC 55%, #FFFAF0 100%)' }}>
-      {/* Ambient glow */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
           animate={{ scale: [1, 1.08, 1], opacity: [0.08, 0.12, 0.08] }}
@@ -104,7 +103,6 @@ export default function GameHub() {
         />
       </div>
 
-      {/* Top bar */}
       <div className="relative z-20 flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2.5">
           <img src={ASSETS.shellblitz} alt="logo" className="w-8 h-8 object-contain" />
@@ -113,9 +111,7 @@ export default function GameHub() {
         <ProfileMenu />
       </div>
 
-      {/* Card Carousel */}
       <div className="flex-1 flex items-center justify-center relative z-10 px-4">
-        {/* Left Arrow */}
         <motion.button
           whileHover={{ scale: 1.15, x: -2 }}
           whileTap={{ scale: 0.9 }}
@@ -125,7 +121,6 @@ export default function GameHub() {
           <span className="text-2xl font-black text-[#1a1a2e]">‹</span>
         </motion.button>
 
-        {/* Right Arrow */}
         <motion.button
           whileHover={{ scale: 1.15, x: 2 }}
           whileTap={{ scale: 0.9 }}
@@ -135,10 +130,8 @@ export default function GameHub() {
           <span className="text-2xl font-black text-[#1a1a2e]">›</span>
         </motion.button>
 
-        {/* Cards */}
         <div className="relative w-full max-w-sm aspect-[3/4] flex items-center justify-center">
           <AnimatePresence mode="popLayout">
-            {/* Prev card (background) */}
             <motion.div
               key={`prev-${prev.id}`}
               initial={{ x: -200, scale: 0.7, opacity: 0 }}
@@ -155,7 +148,6 @@ export default function GameHub() {
               </div>
             </motion.div>
 
-            {/* Current card */}
             <motion.div
               key={`curr-${current.id}`}
               initial={{ scale: 0.8, opacity: 0 }}
@@ -166,10 +158,8 @@ export default function GameHub() {
               style={{ background: 'white', boxShadow: `0 20px 60px ${current.glow}, 0 0 0 1px ${current.color}20` }}
               onClick={() => current.live && setLocation(current.path)}
             >
-              {/* Top strip */}
               <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, ${current.color}, ${current.color}88)` }} />
 
-              {/* Live badge */}
               {current.live && (
                 <motion.div
                   animate={{ opacity: [1, 0.5, 1] }}
@@ -181,7 +171,6 @@ export default function GameHub() {
                 </motion.div>
               )}
 
-              {/* Card content */}
               <div className="flex flex-col items-center justify-center h-full p-8">
                 <motion.img
                   src={current.image}
@@ -216,11 +205,9 @@ export default function GameHub() {
                 )}
               </div>
 
-              {/* Bottom decorative line */}
               <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${current.color}60, transparent)` }} />
             </motion.div>
 
-            {/* Next card (background) */}
             <motion.div
               key={`next-${next.id}`}
               initial={{ x: 200, scale: 0.7, opacity: 0 }}
@@ -240,7 +227,6 @@ export default function GameHub() {
         </div>
       </div>
 
-      {/* Pagination dots */}
       <div className="relative z-10 flex items-center justify-center gap-2 pb-8">
         {PAGES.map((p, i) => (
           <button
@@ -255,7 +241,6 @@ export default function GameHub() {
         ))}
       </div>
 
-      {/* Season footer */}
       <div className="relative z-10 px-6 pb-6">
         <div className="p-4 rounded-2xl flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,107,53,0.1)' }}>
           <img src={ASSETS.goldenShell} alt="golden shell" className="w-10 h-10 object-contain" style={{ filter: 'drop-shadow(0 2px 6px rgba(245,158,11,0.4))' }} />
