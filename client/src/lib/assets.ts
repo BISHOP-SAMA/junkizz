@@ -8,4 +8,6 @@ export const ASSETS = {
   goldenShell:   `${BASE}/golden-shell.png`,
   chestClosed:   `${BASE}/slogchest-closed.png`,
   chestOpen:     `${BASE}/slogchest-open.png`,
+  logo:          `${BASE}/slog-logo.png`,
+  airdrop:       `${BASE}/airdrop.png`,
 };
