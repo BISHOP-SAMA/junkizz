@@ -190,7 +190,7 @@ function DailyClaimCard({ day, shells, onClaim, canClaim }: { day: number; shell
   return (
     <motion.div className="flex items-center gap-3 p-3 rounded-2xl"
       style={{ background: !canClaim ? 'rgba(6,214,160,0.07)' : 'white', border: !canClaim ? '1.5px solid rgba(6,214,160,0.3)' : '1.5px solid rgba(255,107,53,0.18)', boxShadow: !canClaim ? 'none' : '0 2px 10px rgba(255,107,53,0.07)' }}>
-      <img src={ASSETS.dailyShells} alt="shells" className="w-10 h-10 object-contain flex-shrink-0" />
+      <img src={ASSETS.dailyShells} alt="shells" classNameName="w-10 h-10 object-contain flex-shrink-0" />
       <div className="flex-1">
         <div className="text-sm font-black" style={{ color: '#1a1a2e' }}>Day {day} Free Claim</div>
         <div className="text-xs font-bold" style={{ color: '#FF6B35' }}>+{shells} 🐚</div>
@@ -254,7 +254,6 @@ export default function ShellBlitz() {
   const [dailyTimeLeft, setDailyTimeLeft] = useState(0);
   const [artSubmitted, setArtSubmitted] = useState(false);
 
-  // Sync shells from user profile on load
   useEffect(() => {
     if (user) {
       setShells(user.shells_balance);
@@ -262,7 +261,6 @@ export default function ShellBlitz() {
     }
   }, [user]);
 
-  // Daily claim cooldown
   useEffect(() => {
     if (!user) return;
     const key = `daily_claim_${user.id}`;
@@ -348,7 +346,6 @@ export default function ShellBlitz() {
   return (
     <GameLayout pageId="shell-blitz" label="Shell Blitz" color="#FF6B35">
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4 pb-24">
-        {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3.5 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg,#FF6B35,#FF9500)', boxShadow: '0 4px 0 #c04a1a' }}>
             <div className="text-xl font-black text-white">{shells.toLocaleString()}</div>
@@ -363,10 +360,8 @@ export default function ShellBlitz() {
           </div>
         </div>
 
-        {/* Fragment craft */}
         <FragmentCraftCard shells={shells} fragments={fragments} onCraft={craftFragment} />
 
-        {/* Mystery boxes */}
         <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
             <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Mystery Boxes</span>
@@ -375,12 +370,11 @@ export default function ShellBlitz() {
           <BoxGrid onEarn={n => addShells(n)} userId={user.id} />
         </div>
 
-        {/* Daily Claim */}
         <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
             <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Daily Claim</span>
             {dailyClaimed && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#06D6A0/10', color: '#06D6A0' }}>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(6,214,160,0.1)', color: '#06D6A0' }}>
                 {fmtTime(dailyTimeLeft)}
               </span>
             )}
@@ -388,7 +382,6 @@ export default function ShellBlitz() {
           <DailyClaimCard day={1} shells={400} onClaim={claimDaily} canClaim={!dailyClaimed} />
         </div>
 
-        {/* Quests */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
@@ -399,7 +392,6 @@ export default function ShellBlitz() {
           </div>
         </div>
 
-        {/* Locked quests */}
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: '#f0f0f0', color: '#bbb' }}>Day 2+</span>
@@ -410,7 +402,6 @@ export default function ShellBlitz() {
           </div>
         </div>
 
-        {/* Art submission */}
         {user && !artSubmitted && (
           <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
             <div className="flex items-center gap-2 mb-3">
