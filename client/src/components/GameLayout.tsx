@@ -12,7 +12,7 @@ export default function GameLayout({ children, pageId, label, color = '#FF6B35' 
   label: string;
   color?: string;
 }) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const [, setLocation] = useLocation();
 
   if (loading) {
@@ -32,7 +32,6 @@ export default function GameLayout({ children, pageId, label, color = '#FF6B35' 
 
   return (
     <div className="min-h-screen flex flex-col relative" style={{ background: 'linear-gradient(170deg, #FFFBF2 0%, #FFF3DC 60%, #FFFAF0 100%)' }}>
-      {/* Ambient glow */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
           className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full"
@@ -42,7 +41,6 @@ export default function GameLayout({ children, pageId, label, color = '#FF6B35' 
         />
       </div>
 
-      {/* Top Bar */}
       <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b border-black/5" style={{ background: 'rgba(255,251,242,0.9)', backdropFilter: 'blur(14px)' }}>
         <div className="flex items-center gap-3">
           <motion.button
@@ -77,7 +75,6 @@ export default function GameLayout({ children, pageId, label, color = '#FF6B35' 
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 relative z-10">
         {children}
       </div>
