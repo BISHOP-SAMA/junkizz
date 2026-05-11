@@ -195,7 +195,7 @@ function QuestItem({ quest, locked, onComplete }: { quest: Quest; locked: boolea
   );
 }
 
-function DailyClaimGrid({ userId, shells, onClaim }: { userId: string; shells: number; onClaim: (amount: number) => void }) {
+function DailyClaimGrid({ userId, onClaim }: { userId: string; onClaim: (amount: number) => void }) {
   const [claimedDays, setClaimedDays] = useState<number[]>([]);
   const [lastClaimTime, setLastClaimTime] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -435,117 +435,77 @@ export default function ShellBlitz() {
     <GameLayout pageId="shell-blitz" label="Shell Blitz" color="#FF6B35">
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4 pb-24">
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3.5 rounded- transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
-              style={{ background: 'white', boxShadow: `0 8px 32px ${prev.glow}` }}
-              onClick={() => go(-1)}
-            >
-              <img src={prev.image} alt={prev.label} className="w-full h-full object-cover opacity-60" />
-            </motion.div>
-
-            {/* Current card */}
-            <motion.div
-              key={`curr-${current.id}`}
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ x: 0, scale: 1, opacity: 1, zIndex: 10 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
-              style={{ boxShadow: `0 24px 80px ${current.glow}, 0 0 0 3px ${current.color}30` }}
-              onClick={() => current.live && setLocation(current.path)}
-            >
-              {/* Background image */}
-              <div className="absolute inset-0">
-                <img src={current.image} alt={current.label} className="w-full h-full object-cover" />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.05) 60%, transparent 100%)` }} />
-              </div>
-
-              {/* Premium border overlay */}
-              <div className="absolute inset-2 rounded-2xl pointer-events-none" style={{ border: `2px solid ${current.color}50` }} />
-
-              {/* Live badge */}
-              {current.live && (
-                <motion.div
-                  animate={{ opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute top-5 right-5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white z-10"
-                  style={{ background: current.color }}
-                >
-                  Live
-                </motion.div>
-              )}
-
-              {/* Content overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
-                <h2 className="text-3xl font-black text-white mb-2" style={{ fontFamily: 'Georgia, serif', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
-                  {current.label}
-                </h2>
-                <p className="text-sm font-bold mb-6 text-white/80">
-                  {current.sub}
-                </p>
-
-                {current.live ? (
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="inline-flex px-8 py-3.5 rounded-2xl text-sm font-black text-white items-center gap-2"
-                    style={{ background: `linear-gradient(135deg, ${current.color}, ${current.shadow})`, boxShadow: `0 6px 0 ${current.shadow}88` }}
-                  >
-                    <span>Enter</span>
-                    <span>→</span>
-                  </motion.div>
-                ) : (
-                  <div className="inline-flex px-6 py-3 rounded-2xl text-xs font-black text-white/60 bg-white/10 backdrop-blur-sm border border-white/10">
-                    🔒 Coming Soon
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* Next card */}
-            <motion.div
-              key={`next-${next.id}`}
-              initial={{ x: 200, scale: 0.7, opacity: 0 }}
-              animate={{ x: 140, scale: 0.75, opacity: 0.4, zIndex: 1 }}
-              exit={{ x: 300, scale: 0.5, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
-              style={{ background: 'white', boxShadow: `0 8px 32px ${next.glow}` }}
-              onClick={() => go(1)}
-            >
-              <img src={next.image} alt={next.label} className="w-full h-full object-cover opacity-60" />
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-
-      <div className="relative z-10 flex items-center justify-center gap-2 pb-6">
-        {PAGES.map((p, i) => (
-          <button
-            key={p.id}
-            onClick={() => setIndex(i)}
-            className="w-2 h-2 rounded-full transition-all duration-300"
-            style={{
-              background: i === index ? current.color : 'rgba(0,0,0,0.15)',
-              transform: i === index ? 'scale(1.4)' : 'scale(1)',
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative z-10 px-6 pb-6">
-        <div className="p-4 rounded-2xl flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,107,53,0.1)' }}>
-          <img src={ASSETS.goldenShell} alt="golden shell" className="w-10 h-10 object-contain" style={{ filter: 'drop-shadow(0 2px 6px rgba(245,158,11,0.4))' }} />
-          <div className="flex-1">
-            <div className="text-xs font-black text-[#1a1a2e]">Shell Blitz — Season 1</div>
-            <div className="text-[10px] text-[#888] mt-0.5">Collect shells · Craft fragments · Mint your WL</div>
+          <div className="p-3.5 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg,#FF6B35,#FF9500)', boxShadow: '0 4px 0 #c04a1a' }}>
+            <div className="text-xl font-black text-white">{shells.toLocaleString()}</div>
+            <div className="flex items-center justify-center gap-1 mt-0.5">
+              <ShellIcon size={12} />
+              <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Shells</span>
+            </div>
           </div>
-          <div className="text-right">
-            <div className="text-sm font-black text-[#FF6B35]">{user.shells_balance.toLocaleString()}</div>
-            <div className="text-[10px] text-[#bbb]">shells</div>
+          <div className="p-3.5 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg,#06D6A0,#118AB2)', boxShadow: '0 4px 0 #048a67' }}>
+            <div className="text-xl font-black text-white">{fragments}/{MAX_FRAGMENTS}</div>
+            <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-0.5">Fragments</div>
           </div>
         </div>
+
+        <FragmentCraftCard shells={shells} fragments={fragments} onCraft={craftFragment} />
+
+        <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Mystery Boxes</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>Every 3h</span>
+          </div>
+          <BoxGrid onEarn={n => addShells(n)} userId={user.id} />
+        </div>
+
+        <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Daily Claim</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>7-Day Streak</span>
+          </div>
+          <DailyClaimGrid userId={user.id} onClaim={addShells} />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
+            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Social Tasks</span>
+          </div>
+          <div className="space-y-2">
+            {quests.filter(q => q.day === 1).map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: '#f0f0f0', color: '#bbb' }}>Day 2+</span>
+            <span className="text-xs font-bold" style={{ color: '#ccc' }}>Unlocks soon</span>
+          </div>
+          <div className="space-y-2">
+            {quests.filter(q => q.day > 1).map(q => <QuestItem key={q.id} quest={q} locked={true} onComplete={completeQuest} />)}
+          </div>
+        </div>
+
+        <ReferralSection handle={user.twitter_handle} count={user.referral_count} />
+
+        {user && !artSubmitted && (
+          <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">🎨</span>
+              <span className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Your Art</span>
+            </div>
+            <p className="text-xs text-gray-400 mb-3">Post your art on X tagging @planetslog</p>
+            <button onClick={() => setArtSubmitted(true)} className="w-full py-2.5 rounded-xl text-sm font-black text-white" style={{ background: '#FF6B35', boxShadow: '0 3px 0 #c04a1a' }}>
+              Submit
+            </button>
+          </div>
+        )}
+        {artSubmitted && (
+          <div className="p-3 rounded-2xl text-center text-xs font-bold" style={{ background: 'rgba(6,214,160,0.08)', color: '#048a67', border: '1.5px solid rgba(6,214,160,0.2)' }}>
+            🎨 Art submission received
+          </div>
+        )}
       </div>
-    </div>
+    </GameLayout>
   );
 }
