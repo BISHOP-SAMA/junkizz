@@ -15,7 +15,7 @@ export default function Home() {
 
       <div className="relative z-10 flex flex-col items-center text-center max-w-[320px]">
         <motion.div animate={{ y: [0,-8,0] }} transition={{ duration: 3.5, repeat: Infinity }} className="mb-6">
-          <img src={ASSETS.shellblitz} alt="Shellies" className="w-28 h-28 object-contain drop-shadow-xl" />
+          <img src={ASSETS.logo} alt="Shellies" className="w-28 h-28 object-contain drop-shadow-xl rounded-2xl" />
         </motion.div>
 
         <motion.h1 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-black leading-none mb-2 text-[3.5rem] text-[#1a1a2e]" style={{ fontFamily: 'Georgia, serif', letterSpacing: '-0.03em' }}>
