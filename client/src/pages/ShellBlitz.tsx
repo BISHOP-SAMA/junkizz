@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import GameLayout from '../components/GameLayout';
 import { ConfettiBurst } from '../components/ConfettiBurst';
 import { ShellIcon } from '../components/ShellIcon';
@@ -14,7 +14,16 @@ const TWEET_URL = 'https://x.com/planetslog/status/2052019506881458402?s=46';
 const SHELLS_PER_FRAG = 1500;
 const MAX_FRAGMENTS = 3;
 const BOX_COOLDOWN_MS = 3 * 60 * 60 * 1000;
-const DAILY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+const DAILY_REWARDS = [
+  { day: 1, shells: 200 },
+  { day: 2, shells: 300 },
+  { day: 3, shells: 500 },
+  { day: 4, shells: 600 },
+  { day: 5, shells: 700 },
+  { day: 6, shells: 800 },
+  { day: 7, shells: 1000 },
+];
 
 function FragmentOrbs({ count }: { count: number }) {
   return (
@@ -186,24 +195,150 @@ function QuestItem({ quest, locked, onComplete }: { quest: Quest; locked: boolea
   );
 }
 
-function DailyClaimCard({ day, shells, onClaim, canClaim }: { day: number; shells: number; onClaim: () => void; canClaim: boolean }) {
+function DailyClaimGrid({ userId, shells, onClaim }: { userId: string; shells: number; onClaim: (amount: number) => void }) {
+  const [claimedDays, setClaimedDays] = useState<number[]>([]);
+  const [lastClaimTime, setLastClaimTime] = useState<number | null>(null);
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    const savedDays = localStorage.getItem(`daily_claimed_days_${userId}`);
+    const savedTime = localStorage.getItem(`daily_claim_time_${userId}`);
+    if (savedDays) setClaimedDays(JSON.parse(savedDays));
+    if (savedTime) {
+      const t = parseInt(savedTime, 10);
+      if (Date.now() - t < 24 * 60 * 60 * 1000) {
+        setLastClaimTime(t);
+        setTimeLeft(24 * 60 * 60 * 1000 - (Date.now() - t));
+      }
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (!lastClaimTime || timeLeft <= 0) return;
+    const interval = setInterval(() => {
+      const left = 24 * 60 * 60 * 1000 - (Date.now() - lastClaimTime);
+      if (left <= 0) {
+        setTimeLeft(0);
+        setLastClaimTime(null);
+        clearInterval(interval);
+      } else {
+        setTimeLeft(left);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lastClaimTime, timeLeft]);
+
+  const canClaim = (day: number) => {
+    if (timeLeft > 0) return false;
+    if (claimedDays.includes(day)) return false;
+    if (day === 1) return true;
+    return claimedDays.includes(day - 1);
+  };
+
+  const claim = (day: number, amount: number) => {
+    if (!canClaim(day)) return;
+    const next = [...claimedDays, day];
+    setClaimedDays(next);
+    localStorage.setItem(`daily_claimed_days_${userId}`, JSON.stringify(next));
+    const now = Date.now();
+    setLastClaimTime(now);
+    localStorage.setItem(`daily_claim_time_${userId}`, now.toString());
+    setTimeLeft(24 * 60 * 60 * 1000);
+    onClaim(amount);
+  };
+
+  const fmt = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    return `${h}h ${m}m`;
+  };
+
   return (
-    <motion.div className="flex items-center gap-3 p-3 rounded-2xl"
-      style={{ background: !canClaim ? 'rgba(6,214,160,0.07)' : 'white', border: !canClaim ? '1.5px solid rgba(6,214,160,0.3)' : '1.5px solid rgba(255,107,53,0.18)', boxShadow: !canClaim ? 'none' : '0 2px 10px rgba(255,107,53,0.07)' }}>
-      <img src={ASSETS.dailyShells} alt="shells" classNameName="w-10 h-10 object-contain flex-shrink-0" />
-      <div className="flex-1">
-        <div className="text-sm font-black" style={{ color: '#1a1a2e' }}>Day {day} Free Claim</div>
-        <div className="text-xs font-bold" style={{ color: '#FF6B35' }}>+{shells} 🐚</div>
-      </div>
-      {!canClaim ? (
-        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: '#06D6A0', color: 'white' }}>✓</div>
-      ) : (
-        <motion.button whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.93 }} onClick={onClaim} className="h-8 px-3 rounded-full text-xs font-black"
-          style={{ background: 'linear-gradient(135deg, #FF6B35, #FF9500)', color: 'white', boxShadow: '0 3px 0 #c04a1a' }}>
-          Claim
-        </motion.button>
+    <div>
+      {timeLeft > 0 && (
+        <div className="text-center mb-3">
+          <span className="text-xs font-bold text-[#FF6B35]" style={{ fontFamily: 'monospace' }}>Next claim in {fmt(timeLeft)}</span>
+        </div>
       )}
-    </motion.div>
+      <div className="grid grid-cols-7 gap-1.5">
+        {DAILY_REWARDS.map(({ day, shells: reward }) => {
+          const claimed = claimedDays.includes(day);
+          const available = canClaim(day);
+          return (
+            <motion.button
+              key={day}
+              whileHover={available ? { scale: 1.05 } : {}}
+              whileTap={available ? { scale: 0.95 } : {}}
+              onClick={() => claim(day, reward)}
+              disabled={!available}
+              className="flex flex-col items-center p-2 rounded-xl transition-all"
+              style={{
+                background: claimed ? 'rgba(6,214,160,0.12)' : available ? 'white' : 'rgba(0,0,0,0.03)',
+                border: claimed ? '1.5px solid rgba(6,214,160,0.4)' : available ? '1.5px solid rgba(255,107,53,0.25)' : '1.5px solid rgba(0,0,0,0.06)',
+                boxShadow: available ? '0 2px 8px rgba(255,107,53,0.1)' : 'none',
+                opacity: available || claimed ? 1 : 0.5,
+              }}
+            >
+              <span className="text-[9px] font-black uppercase tracking-wider mb-1" style={{ color: claimed ? '#06D6A0' : available ? '#FF6B35' : '#bbb' }}>
+                Day {day}
+              </span>
+              <img src={ASSETS.dailyShells} alt="shell" className="w-8 h-8 object-contain mb-1" style={{ filter: claimed ? 'grayscale(0.3)' : available ? 'none' : 'grayscale(1)' }} />
+              <span className="text-[10px] font-black" style={{ color: claimed ? '#06D6A0' : available ? '#1a1a2e' : '#ccc' }}>
+                +{reward}
+              </span>
+              {claimed && <span className="text-[8px] text-[#06D6A0] font-bold">✓</span>}
+            </motion.button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ReferralSection({ handle, count = 0 }: { handle: string; count?: number }) {
+  const [copied, setCopied] = useState(false);
+  const link = `${window.location.origin}/?ref=${handle}`;
+
+  const copy = () => {
+    navigator.clipboard.writeText(link).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  };
+
+  return (
+    <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">👥</span>
+          <span className="text-sm font-black" style={{ color: '#1a1a2e' }}>Referrals</span>
+        </div>
+        <span className="text-[10px] font-black px-2 py-1 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>
+          {count}/6 · +120🐚 each
+        </span>
+      </div>
+      <div className="flex gap-1.5 mb-3">
+        {Array.from({ length: 6 }, (_, i) => (
+          <motion.div
+            key={i}
+            className="flex-1 h-2.5 rounded-full"
+            style={{ background: i < count ? '#FF6B35' : '#f0f0f0' }}
+            animate={i < count ? { scale: [1, 1.15, 1] } : {}}
+            transition={{ duration: 0.4, delay: i * 0.08 }}
+          />
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <div className="flex-1 px-3 py-2 rounded-xl text-xs font-mono truncate" style={{ background: '#f9f9f9', border: '1px solid #ececec', color: '#888' }}>
+          {link}
+        </div>
+        <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.94 }} onClick={copy}
+          className="px-4 py-2 rounded-xl text-xs font-black flex-shrink-0"
+          style={{ background: copied ? '#06D6A0' : '#FF6B35', color: 'white', boxShadow: copied ? '0 3px 0 #048a67' : '0 3px 0 #c04a1a', transition: 'background 0.2s' }}>
+          {copied ? '✓ Done' : 'Copy'}
+        </motion.button>
+      </div>
+    </div>
   );
 }
 
@@ -250,8 +385,6 @@ export default function ShellBlitz() {
   const { user, refreshProfile } = useAuth();
   const [shells, setShells] = useState(0);
   const [fragments, setFragments] = useState(0);
-  const [dailyClaimed, setDailyClaimed] = useState(false);
-  const [dailyTimeLeft, setDailyTimeLeft] = useState(0);
   const [artSubmitted, setArtSubmitted] = useState(false);
 
   useEffect(() => {
@@ -261,34 +394,6 @@ export default function ShellBlitz() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (!user) return;
-    const key = `daily_claim_${user.id}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      const end = parseInt(saved, 10);
-      if (end > Date.now()) {
-        setDailyClaimed(true);
-        setDailyTimeLeft(end - Date.now());
-      }
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (!dailyClaimed || dailyTimeLeft <= 0) return;
-    const t = setInterval(() => {
-      const left = dailyTimeLeft - 1000;
-      if (left <= 0) {
-        setDailyClaimed(false);
-        setDailyTimeLeft(0);
-        clearInterval(t);
-      } else {
-        setDailyTimeLeft(left);
-      }
-    }, 1000);
-    return () => clearInterval(t);
-  }, [dailyClaimed, dailyTimeLeft]);
-
   const addShells = useCallback(async (amount: number) => {
     if (!user) return;
     const next = shells + amount;
@@ -296,16 +401,6 @@ export default function ShellBlitz() {
     await supabase.from('users').update({ shells_balance: next }).eq('id', user.id);
     refreshProfile();
   }, [shells, user, refreshProfile]);
-
-  const claimDaily = async () => {
-    if (!user || dailyClaimed) return;
-    const amount = 400;
-    await addShells(amount);
-    const end = Date.now() + DAILY_COOLDOWN_MS;
-    localStorage.setItem(`daily_claim_${user.id}`, end.toString());
-    setDailyClaimed(true);
-    setDailyTimeLeft(DAILY_COOLDOWN_MS);
-  };
 
   const craftFragment = async () => {
     if (!user || shells < SHELLS_PER_FRAG || fragments >= MAX_FRAGMENTS) return;
@@ -334,92 +429,123 @@ export default function ShellBlitz() {
     { id: 'd2_q2', icon: '🌊', label: 'Day 2 Quest 2', points: 200, shells: 200, done: false, day: 2 },
   ]);
 
-  const fmtTime = (ms: number) => {
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    return `${h}h ${m.toString().padStart(2, '0')}m`;
-  };
-
   if (!user) return null;
 
   return (
     <GameLayout pageId="shell-blitz" label="Shell Blitz" color="#FF6B35">
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4 pb-24">
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3.5 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg,#FF6B35,#FF9500)', boxShadow: '0 4px 0 #c04a1a' }}>
-            <div className="text-xl font-black text-white">{shells.toLocaleString()}</div>
-            <div className="flex items-center justify-center gap-1 mt-0.5">
-              <ShellIcon size={12} />
-              <span className="text-[10px] font-bold text-white/70 uppercase tracking-widest">Shells</span>
-            </div>
-          </div>
-          <div className="p-3.5 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg,#06D6A0,#118AB2)', boxShadow: '0 4px 0 #048a67' }}>
-            <div className="text-xl font-black text-white">{fragments}/{MAX_FRAGMENTS}</div>
-            <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-0.5">Fragments</div>
-          </div>
+          <div className="p-3.5 rounded- transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
+              style={{ background: 'white', boxShadow: `0 8px 32px ${prev.glow}` }}
+              onClick={() => go(-1)}
+            >
+              <img src={prev.image} alt={prev.label} className="w-full h-full object-cover opacity-60" />
+            </motion.div>
+
+            {/* Current card */}
+            <motion.div
+              key={`curr-${current.id}`}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ x: 0, scale: 1, opacity: 1, zIndex: 10 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
+              style={{ boxShadow: `0 24px 80px ${current.glow}, 0 0 0 3px ${current.color}30` }}
+              onClick={() => current.live && setLocation(current.path)}
+            >
+              {/* Background image */}
+              <div className="absolute inset-0">
+                <img src={current.image} alt={current.label} className="w-full h-full object-cover" />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.05) 60%, transparent 100%)` }} />
+              </div>
+
+              {/* Premium border overlay */}
+              <div className="absolute inset-2 rounded-2xl pointer-events-none" style={{ border: `2px solid ${current.color}50` }} />
+
+              {/* Live badge */}
+              {current.live && (
+                <motion.div
+                  animate={{ opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute top-5 right-5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white z-10"
+                  style={{ background: current.color }}
+                >
+                  Live
+                </motion.div>
+              )}
+
+              {/* Content overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                <h2 className="text-3xl font-black text-white mb-2" style={{ fontFamily: 'Georgia, serif', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
+                  {current.label}
+                </h2>
+                <p className="text-sm font-bold mb-6 text-white/80">
+                  {current.sub}
+                </p>
+
+                {current.live ? (
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="inline-flex px-8 py-3.5 rounded-2xl text-sm font-black text-white items-center gap-2"
+                    style={{ background: `linear-gradient(135deg, ${current.color}, ${current.shadow})`, boxShadow: `0 6px 0 ${current.shadow}88` }}
+                  >
+                    <span>Enter</span>
+                    <span>→</span>
+                  </motion.div>
+                ) : (
+                  <div className="inline-flex px-6 py-3 rounded-2xl text-xs font-black text-white/60 bg-white/10 backdrop-blur-sm border border-white/10">
+                    🔒 Coming Soon
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Next card */}
+            <motion.div
+              key={`next-${next.id}`}
+              initial={{ x: 200, scale: 0.7, opacity: 0 }}
+              animate={{ x: 140, scale: 0.75, opacity: 0.4, zIndex: 1 }}
+              exit={{ x: 300, scale: 0.5, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
+              style={{ background: 'white', boxShadow: `0 8px 32px ${next.glow}` }}
+              onClick={() => go(1)}
+            >
+              <img src={next.image} alt={next.label} className="w-full h-full object-cover opacity-60" />
+            </motion.div>
+          </AnimatePresence>
         </div>
-
-        <FragmentCraftCard shells={shells} fragments={fragments} onCraft={craftFragment} />
-
-        <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Mystery Boxes</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>Every 3h</span>
-          </div>
-          <BoxGrid onEarn={n => addShells(n)} userId={user.id} />
-        </div>
-
-        <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Daily Claim</span>
-            {dailyClaimed && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(6,214,160,0.1)', color: '#06D6A0' }}>
-                {fmtTime(dailyTimeLeft)}
-              </span>
-            )}
-          </div>
-          <DailyClaimCard day={1} shells={400} onClaim={claimDaily} canClaim={!dailyClaimed} />
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
-            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Social Tasks</span>
-          </div>
-          <div className="space-y-2">
-            {quests.filter(q => q.day === 1).map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: '#f0f0f0', color: '#bbb' }}>Day 2+</span>
-            <span className="text-xs font-bold" style={{ color: '#ccc' }}>Unlocks soon</span>
-          </div>
-          <div className="space-y-2">
-            {quests.filter(q => q.day > 1).map(q => <QuestItem key={q.id} quest={q} locked={true} onComplete={completeQuest} />)}
-          </div>
-        </div>
-
-        {user && !artSubmitted && (
-          <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">🎨</span>
-              <span className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Your Art</span>
-            </div>
-            <p className="text-xs text-gray-400 mb-3">Post your art on X tagging @planetslog</p>
-            <button onClick={() => setArtSubmitted(true)} className="w-full py-2.5 rounded-xl text-sm font-black text-white" style={{ background: '#FF6B35', boxShadow: '0 3px 0 #c04a1a' }}>
-              Submit
-            </button>
-          </div>
-        )}
-        {artSubmitted && (
-          <div className="p-3 rounded-2xl text-center text-xs font-bold" style={{ background: 'rgba(6,214,160,0.08)', color: '#048a67', border: '1.5px solid rgba(6,214,160,0.2)' }}>
-            🎨 Art submission received
-          </div>
-        )}
       </div>
-    </GameLayout>
+
+      <div className="relative z-10 flex items-center justify-center gap-2 pb-6">
+        {PAGES.map((p, i) => (
+          <button
+            key={p.id}
+            onClick={() => setIndex(i)}
+            className="w-2 h-2 rounded-full transition-all duration-300"
+            style={{
+              background: i === index ? current.color : 'rgba(0,0,0,0.15)',
+              transform: i === index ? 'scale(1.4)' : 'scale(1)',
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="relative z-10 px-6 pb-6">
+        <div className="p-4 rounded-2xl flex items-center gap-4" style={{ background: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,107,53,0.1)' }}>
+          <img src={ASSETS.goldenShell} alt="golden shell" className="w-10 h-10 object-contain" style={{ filter: 'drop-shadow(0 2px 6px rgba(245,158,11,0.4))' }} />
+          <div className="flex-1">
+            <div className="text-xs font-black text-[#1a1a2e]">Shell Blitz — Season 1</div>
+            <div className="text-[10px] text-[#888] mt-0.5">Collect shells · Craft fragments · Mint your WL</div>
+          </div>
+          <div className="text-right">
+            <div className="text-sm font-black text-[#FF6B35]">{user.shells_balance.toLocaleString()}</div>
+            <div className="text-[10px] text-[#bbb]">shells</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
