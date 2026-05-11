@@ -53,7 +53,7 @@ export function useAuth() {
 
   const login = async () => {
     await supabase.auth.signInWithOAuth({
-      provider: 'twitter',
+      provider: 'x',
       options: { redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/shell-blitz` : undefined },
     });
   };
