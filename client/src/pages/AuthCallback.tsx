@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { motion } from 'framer-motion'; // ← ADD THIS
 import { supabase } from '../lib/supabase';
 
 export default function AuthCallback() {
@@ -8,7 +9,6 @@ export default function AuthCallback() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    // Check if X returned an error in the URL
     const params = new URLSearchParams(window.location.search);
     const error = params.get('error');
     const errorDesc = params.get('error_description');
@@ -19,7 +19,6 @@ export default function AuthCallback() {
       return;
     }
 
-    // Wait for Supabase to establish the session
     const check = setInterval(() => {
       supabase.auth.getSession().then(({ data }) => {
         if (data.session) {
@@ -61,7 +60,13 @@ export default function AuthCallback() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#FFFBF2' }}>
-      <div className="w-8 h-8 rounded-full border-2 border-[#FF6B35] border-t-transparent animate-spin mb-4" />
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: 'linear' }}
+        className="mb-4"
+      >
+        <div className="w-8 h-8 rounded-full border-2 border-[#FF6B35] border-t-transparent" />
+      </motion.div>
       <p className="text-sm font-bold text-gray-400">
         {status === 'success' ? 'Redirecting...' : 'Signing you in...'}
       </p>
