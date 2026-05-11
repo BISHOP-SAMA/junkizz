@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+import { createClient } from '@supabase/supabase-js';
 
 export async function onRequestGet(context: any) {
   const { env, request } = context;
@@ -10,7 +10,6 @@ export async function onRequestGet(context: any) {
   }
 
   try {
-    // Exchange code for token
     const tokenRes = await fetch('https://api.twitter.com/2/oauth2/token', {
       method: 'POST',
       headers: {
@@ -26,31 +25,34 @@ export async function onRequestGet(context: any) {
     });
 
     const tokens = await tokenRes.json() as any;
-
     if (!tokens.access_token) {
       return Response.redirect('https://planetslog.xyz?error=no_token', 302);
     }
 
-    // Get user info
     const userRes = await fetch('https://api.twitter.com/2/users/me?user.fields=profile_image_url', {
       headers: { 'Authorization': `Bearer ${tokens.access_token}` },
     });
-
     const { data: twitterUser } = await userRes.json() as any;
 
-    // Save to DB
-    const sql = neon(env.DATABASE_URL);
-    const result = await sql`
-      INSERT INTO users (twitter_id, twitter_handle, twitter_avatar)
-      VALUES (${twitterUser.id}, ${twitterUser.username}, ${twitterUser.profile_image_url})
-      ON CONFLICT (twitter_id) 
-      DO UPDATE SET twitter_handle = ${twitterUser.username}, twitter_avatar = ${twitterUser.profile_image_url}
-      RETURNING *
-    `;
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-    const user = result[0];
+    const { data: user, error } = await supabase
+      .from('users')
+      .upsert(
+        {
+          twitter_id: twitterUser.id,
+          twitter_handle: twitterUser.username,
+          twitter_avatar: twitterUser.profile_image_url,
+        },
+        { onConflict: 'twitter_id' }
+      )
+      .select()
+      .single();
 
-    // Set session cookie
+    if (error || !user) {
+      return Response.redirect(`https://planetslog.xyz?error=${encodeURIComponent(error?.message ?? 'db_error')}`, 302);
+    }
+
     const session = btoa(JSON.stringify({
       id: user.id,
       twitter_id: user.twitter_id,
@@ -67,7 +69,7 @@ export async function onRequestGet(context: any) {
       },
     });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : 'Unknown error';
+    const msg = error instanceof Error ? error.message : 'unknown_error';
     return Response.redirect(`https://planetslog.xyz?error=${encodeURIComponent(msg)}`, 302);
   }
 }
