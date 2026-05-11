@@ -81,3 +81,4 @@ export default function GameLayout({ children, pageId, label, color = '#FF6B35' 
     </div>
   );
 }
+
