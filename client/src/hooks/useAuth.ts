@@ -1,67 +1,51 @@
 import { useState, useEffect } from 'react';
-import { supabase, type User } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
+
+export type User = {
+  id: string;
+  twitter_id: string;
+  twitter_handle: string;
+  twitter_avatar: string;
+  shells_balance: number;
+  fragments: number;
+  evm_wallet: string | null;
+  day_2_claimed: boolean;
+  day_4_claimed: boolean;
+  referral_count: number;
+  created_at: string;
+};
 
 export function useAuth() {
-  const [profile, setProfile] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkUser();
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        await ensureProfile(session.user);
-      } else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-    return () => listener.subscription.unsubscribe();
+    fetchUser();
   }, []);
 
-  const ensureProfile = async (authUser: any) => {
-    const meta = authUser.user_metadata;
-    const handle = meta.user_name || meta.preferred_username || 'you';
-    const avatar = meta.avatar_url || '';
-    const providerId = meta.provider_id || authUser.id;
-
-    const { data, error } = await supabase
-      .from('users')
-      .upsert({
-        id: authUser.id,
-        twitter_id: providerId,
-        twitter_handle: handle,
-        twitter_avatar: avatar,
-      }, { onConflict: 'id' })
-      .select()
-      .single();
-
-    if (data && !error) setProfile(data as User);
-    setLoading(false);
-  };
-
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) await ensureProfile(session.user);
-    else setLoading(false);
+  const fetchUser = async () => {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      setUser(data.user);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const refreshProfile = async () => {
-    if (!profile) return;
-    const { data } = await supabase.from('users').select('*').eq('id', profile.id).single();
-    if (data) setProfile(data as User);
+    await fetchUser();
   };
 
-  const login = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'x',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
+  const login = () => {
+    window.location.href = '/api/auth/login';
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
+  const logout = () => {
+    window.location.href = '/api/auth/logout';
   };
 
-  return { user: profile, loading, login, logout, refreshProfile };
+  return { user, loading, login, logout, refreshProfile };
 }
