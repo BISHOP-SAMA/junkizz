@@ -1,6 +1,5 @@
 import { Switch, Route } from 'wouter';
 import Home from './pages/Home';
-import AuthCallback from './pages/AuthCallback';
 import GameHub from './pages/GameHub';
 import ShellBlitz from './pages/ShellBlitz';
 import Race from './pages/Race';
@@ -12,7 +11,6 @@ function App() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/auth/callback" component={AuthCallback} />
       <Route path="/game" component={GameHub} />
       <Route path="/shell-blitz" component={ShellBlitz} />
       <Route path="/race" component={Race} />
