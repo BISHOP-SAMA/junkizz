@@ -1,4 +1,4 @@
-import { neon } from '@neondatabase/serverless';
+import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -10,8 +10,8 @@ const schema = z.object({
 export async function onRequestPost(context: any) {
   const { env, request } = context;
 
-  if (!env.DATABASE_URL) {
-    return new Response(JSON.stringify({ message: 'DATABASE_URL not configured' }), {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(JSON.stringify({ message: 'Supabase not configured' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -21,15 +21,21 @@ export async function onRequestPost(context: any) {
     const body = await request.json();
     const data = schema.parse(body);
 
-    const sql = neon(env.DATABASE_URL);
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-    const result = await sql`
-      INSERT INTO applications (quote_tweet, x_username, evm_address)
-      VALUES (${data.quoteTweet}, ${data.xUsername}, ${data.evmAddress})
-      RETURNING *
-    `;
+    const { data: result, error } = await supabase
+      .from('applications')
+      .insert({
+        quote_tweet: data.quoteTweet,
+        x_username: data.xUsername,
+        evm_address: data.evmAddress,
+      })
+      .select()
+      .single();
 
-    return new Response(JSON.stringify(result[0] ?? { success: true }), {
+    if (error) throw new Error(error.message);
+
+    return new Response(JSON.stringify(result ?? { success: true }), {
       status: 201,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
