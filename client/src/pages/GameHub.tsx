@@ -14,7 +14,7 @@ const PAGES = [
     sub: 'Season 1 · Live now',
     color: '#FF6B35',
     shadow: '#c04a1a',
-    glow: 'rgba(255,107,53,0.3)',
+    glow: 'rgba(255,107,53,0.35)',
     emoji: '🐚',
     image: ASSETS.shellblitz,
     live: true,
@@ -26,9 +26,9 @@ const PAGES = [
     sub: 'Claim rewards',
     color: '#8B5CF6',
     shadow: '#6d28d9',
-    glow: 'rgba(139,92,246,0.3)',
+    glow: 'rgba(139,92,246,0.35)',
     emoji: '🎁',
-    image: ASSETS.goldenShell,
+    image: ASSETS.airdrop,
     live: true,
   },
   {
@@ -38,7 +38,7 @@ const PAGES = [
     sub: 'Coming Season 2',
     color: '#06D6A0',
     shadow: '#048a67',
-    glow: 'rgba(6,214,160,0.2)',
+    glow: 'rgba(6,214,160,0.25)',
     emoji: '🏁',
     image: ASSETS.slograce,
     live: false,
@@ -50,7 +50,7 @@ const PAGES = [
     sub: 'Coming Season 2',
     color: '#EF476F',
     shadow: '#b0244e',
-    glow: 'rgba(239,71,111,0.2)',
+    glow: 'rgba(239,71,111,0.25)',
     emoji: '🎨',
     image: ASSETS.customise,
     live: false,
@@ -62,7 +62,7 @@ const PAGES = [
     sub: 'Community art',
     color: '#118AB2',
     shadow: '#0a5a7a',
-    glow: 'rgba(17,138,178,0.2)',
+    glow: 'rgba(17,138,178,0.25)',
     emoji: '🖼️',
     image: ASSETS.shellblitz,
     live: false,
@@ -96,7 +96,7 @@ export default function GameHub() {
     <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #FFFBF2 0%, #FFF0DC 55%, #FFFAF0 100%)' }}>
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
-          animate={{ scale: [1, 1.08, 1], opacity: [0.08, 0.12, 0.08] }}
+          animate={{ scale: [1, 1.08, 1], opacity: [0.06, 0.1, 0.06] }}
           transition={{ duration: 6, repeat: Infinity }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
           style={{ background: current.color }}
@@ -105,7 +105,7 @@ export default function GameHub() {
 
       <div className="relative z-20 flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2.5">
-          <img src={ASSETS.shellblitz} alt="logo" className="w-8 h-8 object-contain" />
+          <img src={ASSETS.logo} alt="logo" className="w-9 h-9 object-contain rounded-xl" />
           <span className="font-black text-lg text-[#1a1a2e]" style={{ fontFamily: 'Georgia, serif' }}>Planetslog</span>
         </div>
         <ProfileMenu />
@@ -132,6 +132,7 @@ export default function GameHub() {
 
         <div className="relative w-full max-w-sm aspect-[3/4] flex items-center justify-center">
           <AnimatePresence mode="popLayout">
+            {/* Prev card */}
             <motion.div
               key={`prev-${prev.id}`}
               initial={{ x: -200, scale: 0.7, opacity: 0 }}
@@ -142,12 +143,10 @@ export default function GameHub() {
               style={{ background: 'white', boxShadow: `0 8px 32px ${prev.glow}` }}
               onClick={() => go(-1)}
             >
-              <div className="h-1.5 w-full" style={{ background: prev.color }} />
-              <div className="flex-1 flex items-center justify-center h-full">
-                <img src={prev.image} alt={prev.label} className="w-24 h-24 object-contain opacity-60" />
-              </div>
+              <img src={prev.image} alt={prev.label} className="w-full h-full object-cover opacity-60" />
             </motion.div>
 
+            {/* Current card */}
             <motion.div
               key={`curr-${current.id}`}
               initial={{ scale: 0.8, opacity: 0 }}
@@ -155,36 +154,36 @@ export default function GameHub() {
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
               className="absolute w-full h-full rounded-3xl overflow-hidden cursor-pointer"
-              style={{ background: 'white', boxShadow: `0 20px 60px ${current.glow}, 0 0 0 1px ${current.color}20` }}
+              style={{ boxShadow: `0 24px 80px ${current.glow}, 0 0 0 3px ${current.color}30` }}
               onClick={() => current.live && setLocation(current.path)}
             >
-              <div className="h-2 w-full" style={{ background: `linear-gradient(90deg, ${current.color}, ${current.color}88)` }} />
+              {/* Background image */}
+              <div className="absolute inset-0">
+                <img src={current.image} alt={current.label} className="w-full h-full object-cover" />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.05) 60%, transparent 100%)` }} />
+              </div>
 
+              {/* Premium border overlay */}
+              <div className="absolute inset-2 rounded-2xl pointer-events-none" style={{ border: `2px solid ${current.color}50` }} />
+
+              {/* Live badge */}
               {current.live && (
                 <motion.div
                   animate={{ opacity: [1, 0.5, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute top-5 right-5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white"
+                  className="absolute top-5 right-5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white z-10"
                   style={{ background: current.color }}
                 >
                   Live
                 </motion.div>
               )}
 
-              <div className="flex flex-col items-center justify-center h-full p-8">
-                <motion.img
-                  src={current.image}
-                  alt={current.label}
-                  className="w-32 h-32 object-contain mb-8"
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{ filter: current.live ? `drop-shadow(0 8px 24px ${current.glow})` : 'grayscale(0.4) opacity(0.6)' }}
-                />
-
-                <h2 className="text-3xl font-black text-[#1a1a2e] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
+              {/* Content overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                <h2 className="text-3xl font-black text-white mb-2" style={{ fontFamily: 'Georgia, serif', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
                   {current.label}
                 </h2>
-                <p className="text-sm font-bold mb-8" style={{ color: current.live ? current.color : '#bbb' }}>
+                <p className="text-sm font-bold mb-6 text-white/80">
                   {current.sub}
                 </p>
 
@@ -192,22 +191,21 @@ export default function GameHub() {
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-8 py-3.5 rounded-2xl text-sm font-black text-white flex items-center gap-2"
+                    className="inline-flex px-8 py-3.5 rounded-2xl text-sm font-black text-white items-center gap-2"
                     style={{ background: `linear-gradient(135deg, ${current.color}, ${current.shadow})`, boxShadow: `0 6px 0 ${current.shadow}88` }}
                   >
                     <span>Enter</span>
                     <span>→</span>
                   </motion.div>
                 ) : (
-                  <div className="px-6 py-3 rounded-2xl text-xs font-black text-gray-300 bg-gray-100">
+                  <div className="inline-flex px-6 py-3 rounded-2xl text-xs font-black text-white/60 bg-white/10 backdrop-blur-sm border border-white/10">
                     🔒 Coming Soon
                   </div>
                 )}
               </div>
-
-              <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${current.color}60, transparent)` }} />
             </motion.div>
 
+            {/* Next card */}
             <motion.div
               key={`next-${next.id}`}
               initial={{ x: 200, scale: 0.7, opacity: 0 }}
@@ -218,16 +216,13 @@ export default function GameHub() {
               style={{ background: 'white', boxShadow: `0 8px 32px ${next.glow}` }}
               onClick={() => go(1)}
             >
-              <div className="h-1.5 w-full" style={{ background: next.color }} />
-              <div className="flex-1 flex items-center justify-center h-full">
-                <img src={next.image} alt={next.label} className="w-24 h-24 object-contain opacity-60" />
-              </div>
+              <img src={next.image} alt={next.label} className="w-full h-full object-cover opacity-60" />
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
 
-      <div className="relative z-10 flex items-center justify-center gap-2 pb-8">
+      <div className="relative z-10 flex items-center justify-center gap-2 pb-6">
         {PAGES.map((p, i) => (
           <button
             key={p.id}
