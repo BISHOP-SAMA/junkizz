@@ -16,36 +16,66 @@ export type User = {
 };
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUser();
+    checkUser();
+    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        await ensureProfile(session.user);
+      } else {
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+    return () => listener.subscription.unsubscribe();
   }, []);
 
-  const fetchUser = async () => {
-    try {
-      const res = await fetch('/api/auth/me');
-      const data = await res.json();
-      setUser(data.user);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+  const ensureProfile = async (authUser: any) => {
+    const meta = authUser.user_metadata;
+    const handle = meta.user_name || meta.preferred_username || 'you';
+    const avatar = meta.avatar_url || '';
+    const providerId = meta.provider_id || authUser.id;
+
+    const { data, error } = await supabase
+      .from('users')
+      .upsert({
+        id: authUser.id,
+        twitter_id: providerId,
+        twitter_handle: handle,
+        twitter_avatar: avatar,
+      }, { onConflict: 'id' })
+      .select()
+      .single();
+
+    if (data && !error) setProfile(data as User);
+    setLoading(false);
+  };
+
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) await ensureProfile(session.user);
+    else setLoading(false);
   };
 
   const refreshProfile = async () => {
-    await fetchUser();
+    if (!profile) return;
+    const { data } = await supabase.from('users').select('*').eq('id', profile.id).single();
+    if (data) setProfile(data as User);
   };
 
-  const login = () => {
-    window.location.href = '/api/auth/login';
+  const login = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'x',
+      options: { redirectTo: 'https://planetslog.xyz/' },
+    });
   };
 
-  const logout = () => {
-    window.location.href = '/api/auth/logout';
+  const logout = async () => {
+    await supabase.auth.signOut();
+    setProfile(null);
   };
 
-  return { user, loading, login, logout, refreshProfile };
+  return { user: profile, loading, login, logout, refreshProfile };
 }
