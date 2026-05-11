@@ -1,11 +1,11 @@
-import { neon } from '@neondatabase/serverless';
+import { createClient } from '@supabase/supabase-js';
 
 export async function onRequestGet(context: any) {
   const { env, request } = context;
-  
+
   const cookie = request.headers.get('cookie') || '';
   const sessionMatch = cookie.match(/session=([^;]+)/);
-  
+
   if (!sessionMatch) {
     return new Response(JSON.stringify({ user: null }), {
       headers: { 'Content-Type': 'application/json' },
@@ -13,15 +13,22 @@ export async function onRequestGet(context: any) {
   }
 
   try {
-    const user = JSON.parse(atob(sessionMatch[1]));
-    
-    // Get fresh data from DB
-    const sql = neon(env.DATABASE_URL);
-    const result = await sql`
-      SELECT * FROM users WHERE id = ${user.id}
-    `;
+    const sessionUser = JSON.parse(atob(sessionMatch[1]));
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
-    return new Response(JSON.stringify({ user: result[0] ?? null }), {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', sessionUser.id)
+      .single();
+
+    if (error || !user) {
+      return new Response(JSON.stringify({ user: null }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ user }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch {
