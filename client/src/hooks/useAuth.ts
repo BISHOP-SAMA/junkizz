@@ -51,15 +51,10 @@ export function useAuth() {
     if (data) setProfile(data as User);
   };
 
-  const login = async (returnTo?: string) => {
-    const redirectPath = returnTo || '/game';
-    const redirectTo = typeof window !== 'undefined' 
-      ? `${window.location.origin}${redirectPath}` 
-      : undefined;
-
+  const login = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'x',
-      options: { redirectTo },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
   };
 
