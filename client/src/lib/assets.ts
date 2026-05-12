@@ -3,12 +3,13 @@ const BASE = 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/
 export const ASSETS = {
   shellblitz:    `${BASE}/shellblitz.png`,
   slograce:      `${BASE}/slograce.png`,
-  customise:     `${BASE}/customise.png`,
+  customise:     `${BASE}/customise.png`,        // keep for backward compat if needed
+  slogfrens:     `${BASE}/slogfrens.png`,        // ← NEW
   dailyShells:   `${BASE}/daily-shells.png`,
   goldenShell:   `${BASE}/golden-shell.png`,
   chestClosed:   `${BASE}/slogchest-closed.png`,
   chestOpen:     `${BASE}/slogchest-open.png`,
   logo:          `${BASE}/slog-logo.png`,
   airdrop:       `${BASE}/airdrop.png`,
-  airdropChest:  `${BASE}/airdrop-chest.png`,  // ← NEW
+  airdropChest:  `${BASE}/airdrop-chest.png`,
 };
