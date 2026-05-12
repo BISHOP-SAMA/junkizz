@@ -55,7 +55,7 @@ const PAGES = [
     image: ASSETS.slogfrens,        // ← NEW IMAGE
     live: false,
   },
-  {
+    {
     id: 'gallery',
     path: '/gallery',
     label: 'Gallery',
@@ -64,7 +64,7 @@ const PAGES = [
     shadow: '#0a5a7a',
     glow: 'rgba(17,138,178,0.25)',
     emoji: '🖼️',
-    image: ASSETS.customize,
+    image: ASSETS.customise,   // ← CHANGED from ASSETS.shellblitz to ASSETS.customise
     live: false,
   },
 ];
