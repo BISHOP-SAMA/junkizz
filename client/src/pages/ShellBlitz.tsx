@@ -53,7 +53,6 @@ const SUBMISSION_CONFIG: Record<string, { title: string; description: string; pl
   }
 };
 
-// ─── Generic Quest Submission Modal ───
 function QuestSubmissionModal({ isOpen, onClose, userId, questId, onSubmitted }: {
   isOpen: boolean; onClose: () => void; userId: string; questId: string; onSubmitted: () => void;
 }) {
@@ -102,9 +101,9 @@ function QuestSubmissionModal({ isOpen, onClose, userId, questId, onSubmitted }:
             </div>
             {submitted ? (
               <div className="py-6 text-center">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-4xl mb-2">✓</motion.div>
-                <div className="text-sm font-black" style={{ color: '#8B5CF6' }}>Submitted</div>
-                <div className="text-xs text-gray-400 mt-1">Your proof has been recorded.</div>
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-4xl mb-2">⏳</motion.div>
+                <div className="text-sm font-black" style={{ color: '#8B5CF6' }}>Pending Review</div>
+                <div className="text-xs text-gray-400 mt-1">Your submission is being reviewed.</div>
               </div>
             ) : (
               <>
@@ -118,7 +117,7 @@ function QuestSubmissionModal({ isOpen, onClose, userId, questId, onSubmitted }:
                   onClick={handleSubmit} disabled={loading}
                   className="w-full py-3 rounded-xl text-sm font-black text-white"
                   style={{ background: loading ? '#eee' : 'linear-gradient(135deg, #8B5CF6, #A78BFA)', boxShadow: loading ? 'none' : '0 4px 0 #6d28d9', color: loading ? '#bbb' : 'white', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? 'Submitting...' : 'Submit Link →'}
+                  {loading ? 'Submitting...' : 'Submit for Review →'}
                 </motion.button>
               </>
             )}
@@ -318,9 +317,9 @@ function BoxGrid({ onEarn, userId }: { onEarn: (n: number) => void; userId: stri
   );
 }
 
-// ─── Quest Item with two-step flow (Visit → Submit) ───
-function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
-  quest: Quest; locked: boolean; onComplete: (id: string) => void; onOpenSubmission?: (id: string) => void; onOpenArt?: () => void;
+function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt, isPending }: {
+  quest: Quest; locked: boolean; onComplete: (id: string) => void; 
+  onOpenSubmission?: (id: string) => void; onOpenArt?: () => void; isPending?: boolean;
 }) {
   const [timerLeft, setTimerLeft] = useState<number | null>(null);
   const [completing, setCompleting] = useState(false);
@@ -341,7 +340,6 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
     if (timerLeft === 0 && !completing) {
       setCompleting(true);
       if (quest.requiresSubmission) {
-        // Timer done — now show Submit button instead of auto-completing
         setAwaitingSubmission(true);
         setTimerLeft(null);
         setCompleting(false);
@@ -355,7 +353,7 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
   }, [timerLeft, completing, quest.id, onComplete, quest.requiresSubmission]);
 
   const handle = () => {
-    if (quest.done || locked || timerLeft !== null || completing) return;
+    if (quest.done || locked || timerLeft !== null || completing || isPending) return;
     if (quest.id === 'submit_art' && onOpenArt) { onOpenArt(); return; }
     if (awaitingSubmission && onOpenSubmission) { onOpenSubmission(quest.id); return; }
     if (quest.url) { window.open(quest.url, '_blank'); setTimerLeft(QUEST_TIMER_SECONDS); return; }
@@ -365,13 +363,17 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
 
   const isCounting = timerLeft !== null && timerLeft > 0;
 
-  // Button text logic
   let btnText = 'Go →';
   if (isCounting) btnText = `${timerLeft}s`;
   else if (completing) btnText = '···';
+  else if (isPending) btnText = 'Pending';
   else if (awaitingSubmission) btnText = 'Submit →';
   else if (quest.id === 'submit_art') btnText = 'Submit →';
   else if (quest.requiresSubmission && !quest.url) btnText = 'Submit →';
+
+  const btnStyle = isPending || isCounting
+    ? { background: '#f0f0f0', color: '#888', boxShadow: 'none', cursor: 'not-allowed' as const }
+    : { background: 'linear-gradient(135deg, #FF6B35, #FF9500)', color: 'white', boxShadow: '0 3px 0 #c04a1a', cursor: 'pointer' as const };
 
   return (
     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3 p-3 rounded-2xl"
@@ -391,15 +393,9 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
         quest.done ? (
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: '#06D6A0', color: 'white' }}>✓</div>
         ) : (
-          <motion.button whileHover={!isCounting ? { scale: 1.07 } : {}} whileTap={!isCounting ? { scale: 0.93 } : {}} onClick={handle} disabled={isCounting || completing}
+          <motion.button whileHover={!isCounting && !isPending ? { scale: 1.07 } : {}} whileTap={!isCounting && !isPending ? { scale: 0.93 } : {}} onClick={handle} disabled={isCounting || completing || isPending}
             className="h-8 px-3 rounded-full text-xs font-black flex-shrink-0 min-w-[52px]"
-            style={{
-              background: isCounting ? '#f0f0f0' : 'linear-gradient(135deg, #FF6B35, #FF9500)',
-              color: isCounting ? '#888' : 'white',
-              boxShadow: isCounting ? 'none' : '0 3px 0 #c04a1a',
-              cursor: isCounting ? 'not-allowed' : 'pointer',
-              transition: 'all 0.3s ease',
-            }}>
+            style={{ ...btnStyle, transition: 'all 0.3s ease' }}>
             {btnText}
           </motion.button>
         )
@@ -524,22 +520,17 @@ export default function ShellBlitz() {
   const [items, setItems] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
   const [activeSubmissionQuest, setActiveSubmissionQuest] = useState<string | null>(null);
+  const [pendingQuests, setPendingQuests] = useState<Set<string>>(new Set());
   const [day2Unlocked, setDay2Unlocked] = useState(false);
   const [day2TimeLeft, setDay2TimeLeft] = useState(0);
 
-  // ─── RESTRUCTURED QUESTS ───
   const [quests, setQuests] = useState<Quest[]>([
-    // Day 1 - Social Tasks
     { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
-    { id: 'retweet', icon: '🔁', label: 'Like & Quote', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
+    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
     { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
-    
-    // Day 2 - Social Tasks
     { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 2 },
     { id: 'claim_free_500', icon: '🎁', label: 'Claim Free 500 Shells', points: 0, shells: 500, done: false, day: 2 },
-    { id: 'd2_comment', icon: '💬', label: 'Quote', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2, requiresSubmission: true },
-    
-    // One-time tasks (exactly 2)
+    { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2, requiresSubmission: true },
     { id: 'write_about', icon: '✍️', label: 'Make a Short Post About Shell Blitz', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
     { id: 'submit_art', icon: '🎨', label: 'Submit Your Art', points: 300, shells: 800, done: false, day: 1, oneTime: true },
   ]);
@@ -574,6 +565,26 @@ export default function ShellBlitz() {
       setQuests(prev => prev.map(q => ({ ...q, done: completed.has(q.id) })));
     };
     loadCompletedQuests();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const loadPending = async () => {
+      const { data } = await supabase
+        .from('quest_submissions')
+        .select('quest_id, status')
+        .eq('user_id', user.id)
+        .in('status', ['pending', 'approved']);
+      
+      const pending = new Set(data?.filter(d => d.status === 'pending').map(d => d.quest_id) || []);
+      const approved = new Set(data?.filter(d => d.status === 'approved').map(d => d.quest_id) || []);
+      
+      setPendingQuests(pending);
+      setQuests(prev => prev.map(q => 
+        approved.has(q.id) ? { ...q, done: true } : q
+      ));
+    };
+    loadPending();
   }, [user]);
 
   const addShells = useCallback(async (amount: number) => {
@@ -655,11 +666,10 @@ export default function ShellBlitz() {
           <DailyClaimGrid userId={user.id} onClaim={addShells} />
         </div>
 
-        {/* One-Time Tasks */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#8B5CF6' }}>One-Time</span>
-            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Bonus Tasks</span>
+            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Bonus Tasks · Admin Review Required</span>
           </div>
           <div className="space-y-2">
             {oneTimeQuests.map(q => (
@@ -668,6 +678,7 @@ export default function ShellBlitz() {
                 quest={q}
                 locked={false}
                 onComplete={completeQuest}
+                isPending={pendingQuests.has(q.id)}
                 onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
                 onOpenArt={q.id === 'submit_art' ? () => setShowArtModal(true) : undefined}
               />
@@ -675,7 +686,6 @@ export default function ShellBlitz() {
           </div>
         </div>
 
-        {/* Day 1 Tasks */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
@@ -694,7 +704,6 @@ export default function ShellBlitz() {
           </div>
         </div>
 
-        {/* Day 2 Tasks */}
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: day2Unlocked ? '#FF6B35' : '#f0f0f0', color: day2Unlocked ? 'white' : '#bbb' }}>Day 2</span>
@@ -725,15 +734,12 @@ export default function ShellBlitz() {
         userId={user.id} 
         questId={activeSubmissionQuest || ''}
         onSubmitted={() => {
-    // Don't complete or award shells — just mark as pending in UI
-         setQuests(prev => prev.map(q => 
-          q.id === activeSubmissionQuest 
-           ? { ...q, done: false } // keep not done, show pending state
-           : q
-    ));
-    setActiveSubmissionQuest(null);
-  }} 
-/>
+          if (activeSubmissionQuest) {
+            setPendingQuests(prev => new Set(prev).add(activeSubmissionQuest));
+          }
+          setActiveSubmissionQuest(null);
+        }} 
+      />
     </GameLayout>
   );
 }
