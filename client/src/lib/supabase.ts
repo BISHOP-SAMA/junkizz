@@ -15,7 +15,7 @@ export type User = {
   twitter_handle: string;
   twitter_avatar: string;
   shells_balance: number;
-  items: number;           // ← CHANGED from fragments
+  items: number;
   evm_wallet: string | null;
   day_2_claimed: boolean;
   day_4_claimed: boolean;
