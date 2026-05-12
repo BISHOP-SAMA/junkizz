@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import GameLayout from '../components/GameLayout';
 import { ConfettiBurst } from '../components/ConfettiBurst';
 import { ShellIcon } from '../components/ShellIcon';
@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 import { ASSETS } from '../lib/assets';
 import ArtUploadModal from '../components/ArtUploadModal';
 
-type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number; oneTime?: boolean };
+type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number; oneTime?: boolean; requiresSubmission?: boolean };
 
 const PLANETSLOG_URL = 'https://x.com/planetslog?s=21';
 const TWEET_URL = 'https://x.com/planetslog/status/2052019506881458402?s=46';
@@ -17,7 +17,8 @@ const GARY_URL = 'https://x.com/garythecleaner1?s=21';
 const SHELLS_PER_FRAG = 1500;
 const MAX_FRAGMENTS = 3;
 const BOX_COOLDOWN_MS = 3 * 60 * 60 * 1000;
-const DAY2_UNLOCK_MS = 24 * 60 * 60 * 1000; // 24 hours
+const DAY2_UNLOCK_MS = 24 * 60 * 60 * 1000;
+const QUEST_TIMER_SECONDS = 30;
 
 const DAILY_REWARDS = [
   { day: 1, shells: 200 },
@@ -28,6 +29,177 @@ const DAILY_REWARDS = [
   { day: 6, shells: 800 },
   { day: 7, shells: 1000 },
 ];
+
+// ─── Submission Modal for "Write About PlanetSlog" ───
+function ArticleSubmissionModal({ isOpen, onClose, userId, onSubmitted }: {
+  isOpen: boolean; onClose: () => void; userId: string; onSubmitted: () => void;
+}) {
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) { setUrl(''); setError(''); setSubmitted(false); setLoading(false); }
+  }, [isOpen]);
+
+  const handleSubmit = async () => {
+    if (!url.trim()) { setError('Please enter your article link'); return; }
+    if (!url.startsWith('http')) { setError('Please enter a valid URL'); return; }
+    setLoading(true);
+    setError('');
+
+    const { error: err } = await supabase
+      .from('article_submissions')
+      .insert({ user_id: userId, article_url: url.trim(), status: 'pending' });
+
+    setLoading(false);
+    if (err) {
+      if (err.code === '23505') { setError('You already submitted an article.'); }
+      else { setError(err.message); }
+      return;
+    }
+    setSubmitted(true);
+    onSubmitted();
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            onClick={e => e.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl p-5 space-y-4"
+            style={{ background: 'white', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Article</h3>
+              <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-lg" style={{ background: '#f4f4f4', color: '#888' }}>×</button>
+            </div>
+
+            {submitted ? (
+              <div className="py-6 text-center">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-4xl mb-2">⏳</motion.div>
+                <div className="text-sm font-black" style={{ color: '#8B5CF6' }}>Pending Approval</div>
+                <div className="text-xs text-gray-400 mt-1">We'll review your article and assign shells soon.</div>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-gray-400">
+                  Write an article about PlanetSlog and paste the link below. Our team will review and approve it.
+                </p>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={e => setUrl(e.target.value)}
+                  placeholder="https://medium.com/... or https://x.com/..."
+                  className="w-full px-3 py-2.5 rounded-xl text-sm"
+                  style={{ background: '#fafafa', border: '1.5px solid #ececec', color: '#1a1a2e' }}
+                />
+                {error && (
+                  <div className="text-[10px] font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(239,71,111,0.08)', color: '#EF476F', border: '1px solid rgba(239,71,111,0.2)' }}>
+                    {error}
+                  </div>
+                )}
+                <motion.button
+                  whileHover={!loading ? { scale: 1.02 } : {}}
+                  whileTap={!loading ? { scale: 0.97 } : {}}
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl text-sm font-black text-white"
+                  style={{
+                    background: loading ? '#eee' : 'linear-gradient(135deg, #8B5CF6, #A78BFA)',
+                    boxShadow: loading ? 'none' : '0 4px 0 #6d28d9',
+                    color: loading ? '#bbb' : 'white',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {loading ? 'Submitting...' : 'Submit Article →'}
+                </motion.button>
+              </>
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ─── 30s Timer Modal for Social Tasks ───
+function QuestTimerModal({ isOpen, onComplete, questLabel }: {
+  isOpen: boolean; onComplete: () => void; questLabel: string;
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(QUEST_TIMER_SECONDS);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setSecondsLeft(QUEST_TIMER_SECONDS);
+    const interval = setInterval(() => {
+      setSecondsLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          onComplete();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isOpen, onComplete]);
+
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="w-full max-w-xs rounded-2xl p-6 text-center"
+        style={{ background: 'white', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}
+      >
+        <div className="text-3xl mb-3">⏱️</div>
+        <h3 className="text-sm font-black mb-1" style={{ color: '#1a1a2e' }}>{questLabel}</h3>
+        <p className="text-xs text-gray-400 mb-4">Complete the task to earn shells</p>
+        
+        <div className="relative w-24 h-24 mx-auto mb-4">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#f0f0f0" strokeWidth="8" />
+            <motion.circle
+              cx="50" cy="50" r="42" fill="none" stroke="#FF6B35" strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={264}
+              animate={{ strokeDashoffset: 264 * (secondsLeft / QUEST_TIMER_SECONDS) }}
+              transition={{ duration: 0.5, ease: 'linear' }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-black" style={{ color: '#FF6B35', fontFamily: 'monospace' }}>
+              {secondsLeft}s
+            </span>
+          </div>
+        </div>
+
+        <div className="text-[10px] text-gray-400">
+          {secondsLeft > 0 ? 'Stay on the task page...' : '✓ Verifying completion...'}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 function FragmentOrbs({ count }: { count: number }) {
   return (
@@ -266,42 +438,73 @@ function BoxGrid({ onEarn, userId }: { onEarn: (n: number) => void; userId: stri
   );
 }
 
-function QuestItem({ quest, locked, onComplete }: { quest: Quest; locked: boolean; onComplete: (id: string) => void }) {
+function QuestItem({ quest, locked, onComplete, onOpenSubmission }: {
+  quest: Quest; locked: boolean; onComplete: (id: string) => void; onOpenSubmission?: (id: string) => void;
+}) {
   const [loading, setLoading] = useState(false);
+  const [timerOpen, setTimerOpen] = useState(false);
+
   const handle = async () => {
-    if (quest.done || locked || loading) return;
-    if (quest.url) window.open(quest.url, '_blank');
+    if (quest.done || locked || loading || timerOpen) return;
+
+    // Article submission quest — open modal instead of X
+    if (quest.requiresSubmission && onOpenSubmission) {
+      onOpenSubmission(quest.id);
+      return;
+    }
+
+    // Social tasks with 30s timer
+    if (quest.url) {
+      window.open(quest.url, '_blank');
+      setTimerOpen(true);
+      return;
+    }
+
+    // Fallback for tasks without URL (shouldn't happen)
     setLoading(true);
     await new Promise(r => setTimeout(r, 1200));
     setLoading(false);
     onComplete(quest.id);
   };
 
+  const handleTimerComplete = () => {
+    setTimerOpen(false);
+    onComplete(quest.id);
+  };
+
   return (
-    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3 p-3 rounded-2xl"
-      style={{ background: locked ? 'rgba(0,0,0,0.02)' : quest.done ? 'rgba(6,214,160,0.07)' : 'white', border: quest.done ? '1.5px solid rgba(6,214,160,0.3)' : locked ? '1.5px solid rgba(0,0,0,0.05)' : '1.5px solid rgba(255,107,53,0.18)', boxShadow: locked || quest.done ? 'none' : '0 2px 10px rgba(255,107,53,0.07)', opacity: locked ? 0.42 : 1 }}>
-      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: locked ? '#f4f4f4' : quest.done ? 'rgba(6,214,160,0.12)' : '#FFF5EE' }}>
-        {locked ? '🔒' : quest.icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-black leading-tight truncate" style={{ color: locked ? '#ccc' : '#1a1a2e' }}>{quest.label}</div>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[10px] font-bold" style={{ color: locked ? '#ddd' : '#FF6B35' }}>+{quest.shells}🐚</span>
-          <span className="text-[10px]" style={{ color: '#ccc' }}>·</span>
-          <span className="text-[10px] font-bold" style={{ color: locked ? '#ddd' : '#888' }}>+{quest.points}pts</span>
+    <>
+      <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3 p-3 rounded-2xl"
+        style={{ background: locked ? 'rgba(0,0,0,0.02)' : quest.done ? 'rgba(6,214,160,0.07)' : 'white', border: quest.done ? '1.5px solid rgba(6,214,160,0.3)' : locked ? '1.5px solid rgba(0,0,0,0.05)' : '1.5px solid rgba(255,107,53,0.18)', boxShadow: locked || quest.done ? 'none' : '0 2px 10px rgba(255,107,53,0.07)', opacity: locked ? 0.42 : 1 }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0" style={{ background: locked ? '#f4f4f4' : quest.done ? 'rgba(6,214,160,0.12)' : '#FFF5EE' }}>
+          {locked ? '🔒' : quest.icon}
         </div>
-      </div>
-      {!locked && (
-        quest.done ? (
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: '#06D6A0', color: 'white' }}>✓</div>
-        ) : (
-          <motion.button whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.93 }} onClick={handle} disabled={loading} className="h-8 px-3 rounded-full text-xs font-black flex-shrink-0"
-            style={{ background: loading ? '#eee' : 'linear-gradient(135deg, #FF6B35, #FF9500)', color: loading ? '#bbb' : 'white', boxShadow: loading ? 'none' : '0 3px 0 #c04a1a', minWidth: 52 }}>
-            {loading ? '···' : 'Go →'}
-          </motion.button>
-        )
-      )}
-    </motion.div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-black leading-tight truncate" style={{ color: locked ? '#ccc' : '#1a1a2e' }}>{quest.label}</div>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[10px] font-bold" style={{ color: locked ? '#ddd' : '#FF6B35' }}>+{quest.shells}🐚</span>
+            <span className="text-[10px]" style={{ color: '#ccc' }}>·</span>
+            <span className="text-[10px] font-bold" style={{ color: locked ? '#ddd' : '#888' }}>+{quest.points}pts</span>
+          </div>
+        </div>
+        {!locked && (
+          quest.done ? (
+            <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0" style={{ background: '#06D6A0', color: 'white' }}>✓</div>
+          ) : (
+            <motion.button whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.93 }} onClick={handle} disabled={loading || timerOpen} className="h-8 px-3 rounded-full text-xs font-black flex-shrink-0"
+              style={{ background: loading || timerOpen ? '#eee' : 'linear-gradient(135deg, #FF6B35, #FF9500)', color: loading || timerOpen ? '#bbb' : 'white', boxShadow: loading || timerOpen ? 'none' : '0 3px 0 #c04a1a', minWidth: 52 }}>
+              {loading || timerOpen ? '···' : quest.requiresSubmission ? 'Submit →' : 'Go →'}
+            </motion.button>
+          )
+        )}
+      </motion.div>
+
+      <QuestTimerModal
+        isOpen={timerOpen}
+        onComplete={handleTimerComplete}
+        questLabel={quest.label}
+      />
+    </>
   );
 }
 
@@ -457,6 +660,7 @@ export default function ShellBlitz() {
   const [shells, setShells] = useState(0);
   const [fragments, setFragments] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
+  const [showArticleModal, setShowArticleModal] = useState(false);
   const [day2Unlocked, setDay2Unlocked] = useState(false);
   const [day2TimeLeft, setDay2TimeLeft] = useState(0);
 
@@ -465,11 +669,11 @@ export default function ShellBlitz() {
     { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
     { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1 },
     { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1 },
-    // Day 2 - Social Tasks (same pattern, new tweet)
+    // Day 2 - Social Tasks
     { id: 'd2_retweet', icon: '🔁', label: 'Like & Retweet Day 2', points: 150, shells: 150, done: false, url: DAY2_TWEET_URL, day: 2 },
     { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2 },
     // One-time tasks
-    { id: 'write_about', icon: '✍️', label: 'Write About PlanetSlog', points: 500, shells: 1500, done: false, url: PLANETSLOG_URL, day: 1, oneTime: true },
+    { id: 'write_about', icon: '✍️', label: 'Write About PlanetSlog', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
     { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 1, oneTime: true },
   ]);
 
@@ -481,7 +685,7 @@ export default function ShellBlitz() {
     }
   }, [user]);
 
-  // Day 2 unlock timer: 24h after first page visit (stored per user)
+  // Day 2 unlock timer
   useEffect(() => {
     if (!user) return;
     const key = `day2_unlock_${user.id}`;
@@ -491,7 +695,6 @@ export default function ShellBlitz() {
     if (saved) {
       unlockTime = parseInt(saved, 10);
     } else {
-      // First visit — set unlock time to 24h from now
       unlockTime = Date.now() + DAY2_UNLOCK_MS;
       localStorage.setItem(key, unlockTime.toString());
     }
@@ -561,7 +764,6 @@ export default function ShellBlitz() {
     const quest = quests.find(q => q.id === id);
     if (!quest || !user || quest.done) return;
 
-    // Guard 1: Check DB first
     const { data: existing } = await supabase
       .from('quest_completions')
       .select('id')
@@ -574,7 +776,6 @@ export default function ShellBlitz() {
       return;
     }
 
-    // Guard 2: Insert with unique constraint protection
     const { error: insertError } = await supabase
       .from('quest_completions')
       .insert({ user_id: user.id, quest_id: id });
@@ -651,7 +852,15 @@ export default function ShellBlitz() {
             <span className="text-xs font-bold" style={{ color: '#aaa' }}>Bonus Tasks</span>
           </div>
           <div className="space-y-2">
-            {oneTimeQuests.map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
+            {oneTimeQuests.map(q => (
+              <QuestItem
+                key={q.id}
+                quest={q}
+                locked={false}
+                onComplete={completeQuest}
+                onOpenSubmission={q.requiresSubmission ? () => setShowArticleModal(true) : undefined}
+              />
+            ))}
           </div>
         </div>
 
@@ -675,9 +884,7 @@ export default function ShellBlitz() {
             </span>
           </div>
           <div className="space-y-2">
-            {day2Quests.map(q => (
-              <QuestItem key={q.id} quest={q} locked={!day2Unlocked} onComplete={completeQuest} />
-            ))}
+            {day2Quests.map(q => <QuestItem key={q.id} quest={q} locked={!day2Unlocked} onComplete={completeQuest} />)}
           </div>
         </div>
 
@@ -699,6 +906,16 @@ export default function ShellBlitz() {
         isOpen={showArtModal}
         onClose={() => setShowArtModal(false)}
         userId={user.id}
+      />
+
+      <ArticleSubmissionModal
+        isOpen={showArticleModal}
+        onClose={() => setShowArticleModal(false)}
+        userId={user.id}
+        onSubmitted={() => {
+          // Mark as pending in UI — no shells awarded yet
+          setQuests(prev => prev.map(q => q.id === 'write_about' ? { ...q, done: true } : q));
+        }}
       />
     </GameLayout>
   );
