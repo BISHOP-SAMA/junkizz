@@ -14,8 +14,8 @@ const PLANETSLOG_URL = 'https://x.com/planetslog?s=21';
 const TWEET_URL = 'https://x.com/planetslog/status/2052019506881458402?s=46';
 const DAY2_TWEET_URL = 'https://x.com/planetslog/status/2051376348380463131?s=46';
 const GARY_URL = 'https://x.com/garythecleaner1?s=21';
-const SHELLS_PER_FRAG = 1500;
-const MAX_FRAGMENTS = 3;
+const SHELLS_PER_ITEM = 1500;
+const MAX_ITEMS = 3;
 const BOX_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 const DAY2_UNLOCK_MS = 24 * 60 * 60 * 1000;
 const QUEST_TIMER_SECONDS = 30;
@@ -83,7 +83,7 @@ function ArticleSubmissionModal({ isOpen, onClose, userId, onSubmitted }: {
               </div>
             ) : (
               <>
-                <p className="text-xs text-gray-400">Write an article about PlanetSlog and paste the link below.</p>
+                <p className="text-xs text-gray-400">Write about the Shell Blitz campaign and paste your article or X post link below.</p>
                 <input type="text" value={url} onChange={e => setUrl(e.target.value)}
                   placeholder="https://medium.com/... or https://x.com/..."
                   className="w-full px-3 py-2.5 rounded-xl text-sm"
@@ -104,13 +104,22 @@ function ArticleSubmissionModal({ isOpen, onClose, userId, onSubmitted }: {
   );
 }
 
-function FragmentOrbs({ count }: { count: number }) {
+function ItemOrbs({ count }: { count: number }) {
   return (
     <div className="flex items-center gap-2">
-      {Array.from({ length: MAX_FRAGMENTS }, (_, i) => (
-        <motion.div key={i} animate={i < count ? { scale: [1, 1.1, 1] } : {}} transition={{ duration: 1.5, repeat: i < count ? Infinity : 0, delay: i * 0.3 }}
+      {Array.from({ length: MAX_ITEMS }, (_, i) => (
+        <motion.div
+          key={i}
+          animate={i < count ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 1.5, repeat: i < count ? Infinity : 0, delay: i * 0.3 }}
           className="w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-black"
-          style={{ background: i < count ? 'radial-gradient(circle at 35% 35%, #fef3c7, #f59e0b)' : 'rgba(0,0,0,0.05)', borderColor: i < count ? 'rgba(245,158,11,0.6)' : 'rgba(0,0,0,0.1)', boxShadow: i < count ? '0 0 14px rgba(245,158,11,0.45)' : 'none', color: i < count ? '#78350f' : '#ccc' }}>
+          style={{
+            background: i < count ? 'radial-gradient(circle at 35% 35%, #fef3c7, #f59e0b)' : 'rgba(0,0,0,0.05)',
+            borderColor: i < count ? 'rgba(245,158,11,0.6)' : 'rgba(0,0,0,0.1)',
+            boxShadow: i < count ? '0 0 14px rgba(245,158,11,0.45)' : 'none',
+            color: i < count ? '#78350f' : '#ccc',
+          }}
+        >
           {i < count ? '◆' : '◇'}
         </motion.div>
       ))}
@@ -158,37 +167,40 @@ function WalletSubmission({ userId, currentWallet, onSubmitted }: { userId: stri
   );
 }
 
-function FragmentCraftCard({ shells, fragments, userId, evmWallet, onCraft, onWalletSubmitted }: { shells: number; fragments: number; userId: string; evmWallet: string | null; onCraft: () => void; onWalletSubmitted: () => void }) {
-  const canCraft = shells >= SHELLS_PER_FRAG && fragments < MAX_FRAGMENTS;
-  const progress = Math.min((shells / (SHELLS_PER_FRAG * MAX_FRAGMENTS)) * 100, 100);
+function ItemCraftCard({ shells, items, userId, evmWallet, onCraft, onWalletSubmitted }: {
+  shells: number; items: number; userId: string; evmWallet: string | null; onCraft: () => void; onWalletSubmitted: () => void;
+}) {
+  const canCraft = shells >= SHELLS_PER_ITEM && items < MAX_ITEMS;
+  const progress = Math.min((shells / (SHELLS_PER_ITEM * MAX_ITEMS)) * 100, 100);
+
   return (
     <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(245,158,11,0.2)', boxShadow: '0 2px 12px rgba(245,158,11,0.08)' }}>
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="text-sm font-black" style={{ color: '#1a1a2e' }}>Golden Shell</div>
-          <div className="text-[10px] mt-0.5" style={{ color: '#888' }}>1,500 🐚 per fragment · 3 to mint</div>
+          <div className="text-[10px] mt-0.5" style={{ color: '#888' }}>1,500 🐚 per item · 3 to mint</div>
         </div>
         <motion.img src={ASSETS.goldenShell} alt="golden shell" className="w-12 h-12 object-contain"
-          animate={fragments > 0 ? { rotate: [0, 5, -5, 0] } : {}} transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-          style={{ filter: fragments === 0 ? 'grayscale(0.8) opacity(0.5)' : 'drop-shadow(0 0 8px rgba(245,158,11,0.7))' }} />
+          animate={items > 0 ? { rotate: [0, 5, -5, 0] } : {}} transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+          style={{ filter: items === 0 ? 'grayscale(0.8) opacity(0.5)' : 'drop-shadow(0 0 8px rgba(245,158,11,0.7))' }} />
       </div>
-      <FragmentOrbs count={fragments} />
+      <ItemOrbs count={items} />
       <div className="mt-3 mb-3">
         <div className="flex justify-between text-[10px] mb-1" style={{ color: '#aaa', fontFamily: 'monospace' }}>
           <span>{shells.toLocaleString()} shells</span>
-          <span>{(SHELLS_PER_FRAG * MAX_FRAGMENTS).toLocaleString()} goal</span>
+          <span>{(SHELLS_PER_ITEM * MAX_ITEMS).toLocaleString()} goal</span>
         </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
           <motion.div className="h-full rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.6, ease: 'easeOut' }} style={{ background: 'linear-gradient(90deg, #f59e0b, #fde68a)' }} />
         </div>
       </div>
-      {fragments === MAX_FRAGMENTS ? (
+      {items === MAX_ITEMS ? (
         <WalletSubmission userId={userId} currentWallet={evmWallet} onSubmitted={onWalletSubmitted} />
       ) : (
         <motion.button whileHover={canCraft ? { scale: 1.02 } : {}} whileTap={canCraft ? { scale: 0.97 } : {}} onClick={onCraft} disabled={!canCraft}
           className="w-full py-2.5 rounded-xl text-sm font-black"
           style={{ background: canCraft ? 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(253,230,138,0.2))' : 'rgba(0,0,0,0.04)', border: canCraft ? '1.5px solid rgba(245,158,11,0.4)' : '1.5px solid rgba(0,0,0,0.06)', color: canCraft ? '#92400e' : '#ccc', cursor: canCraft ? 'pointer' : 'not-allowed' }}>
-          {canCraft ? `Craft Fragment ${fragments + 1} ✦` : `Need ${Math.max(0, SHELLS_PER_FRAG - (shells % SHELLS_PER_FRAG || SHELLS_PER_FRAG))} more 🐚`}
+          {canCraft ? `Craft Item ${items + 1} ✦` : `Need ${Math.max(0, SHELLS_PER_ITEM - (shells % SHELLS_PER_ITEM || SHELLS_PER_ITEM))} more 🐚`}
         </motion.button>
       )}
     </div>
@@ -281,14 +293,13 @@ function BoxGrid({ onEarn, userId }: { onEarn: (n: number) => void; userId: stri
   );
 }
 
-// ─── UPDATED: Timer lives ON the button ───
-function QuestItem({ quest, locked, onComplete, onOpenSubmission }: {
-  quest: Quest; locked: boolean; onComplete: (id: string) => void; onOpenSubmission?: (id: string) => void;
+// ─── Timer lives ON the button ───
+function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
+  quest: Quest; locked: boolean; onComplete: (id: string) => void; onOpenSubmission?: (id: string) => void; onOpenArt?: () => void;
 }) {
   const [timerLeft, setTimerLeft] = useState<number | null>(null);
   const [completing, setCompleting] = useState(false);
 
-  // Countdown effect
   useEffect(() => {
     if (timerLeft === null || timerLeft <= 0) return;
     const interval = setInterval(() => {
@@ -300,7 +311,6 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission }: {
     return () => clearInterval(interval);
   }, [timerLeft]);
 
-  // When timer hits 0, complete the quest
   useEffect(() => {
     if (timerLeft === 0 && !completing) {
       setCompleting(true);
@@ -313,9 +323,9 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission }: {
 
   const handle = () => {
     if (quest.done || locked || timerLeft !== null || completing) return;
+    if (quest.id === 'submit_art' && onOpenArt) { onOpenArt(); return; }
     if (quest.requiresSubmission && onOpenSubmission) { onOpenSubmission(quest.id); return; }
     if (quest.url) { window.open(quest.url, '_blank'); setTimerLeft(QUEST_TIMER_SECONDS); return; }
-    // Fallback
     onComplete(quest.id);
   };
 
@@ -348,7 +358,7 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission }: {
               cursor: isCounting ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
             }}>
-            {isCounting ? `${timerLeft}s` : completing ? '···' : quest.requiresSubmission ? 'Submit →' : 'Go →'}
+            {isCounting ? `${timerLeft}s` : completing ? '···' : quest.requiresSubmission || quest.id === 'submit_art' ? 'Submit →' : 'Go →'}
           </motion.button>
         )
       )}
@@ -469,24 +479,31 @@ function ReferralSection({ handle, count = 0 }: { handle: string; count?: number
 export default function ShellBlitz() {
   const { user, refreshProfile } = useAuth();
   const [shells, setShells] = useState(0);
-  const [fragments, setFragments] = useState(0);
+  const [items, setItems] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
   const [showArticleModal, setShowArticleModal] = useState(false);
   const [day2Unlocked, setDay2Unlocked] = useState(false);
   const [day2TimeLeft, setDay2TimeLeft] = useState(0);
 
+  // ─── RESTRUCTURED QUESTS ───
   const [quests, setQuests] = useState<Quest[]>([
+    // Day 1 - Social Tasks
     { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
     { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1 },
     { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1 },
-    { id: 'd2_retweet', icon: '🔁', label: 'Like & Retweet Day 2', points: 150, shells: 150, done: false, url: DAY2_TWEET_URL, day: 2 },
+    
+    // Day 2 - Social Tasks
+    { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 2 },
+    { id: 'claim_free_500', icon: '🎁', label: 'Claim Free 500 Shells', points: 0, shells: 500, done: false, day: 2 },
     { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2 },
-    { id: 'write_about', icon: '✍️', label: 'Write About PlanetSlog', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
-    { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 1, oneTime: true },
+    
+    // One-time tasks (exactly 2)
+    { id: 'write_about', icon: '✍️', label: 'Make a Short Post About Shell Blitz', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
+    { id: 'submit_art', icon: '🎨', label: 'Submit Your Art', points: 300, shells: 800, done: false, day: 1, oneTime: true },
   ]);
 
   useEffect(() => {
-    if (user) { setShells(user.shells_balance); setFragments(user.fragments ?? 0); }
+    if (user) { setShells(user.shells_balance); setItems(user.items ?? 0); }
   }, [user]);
 
   useEffect(() => {
@@ -525,12 +542,13 @@ export default function ShellBlitz() {
     refreshProfile();
   }, [shells, user, refreshProfile]);
 
-  const craftFragment = async () => {
-    if (!user || shells < SHELLS_PER_FRAG || fragments >= MAX_FRAGMENTS) return;
-    const nextShells = shells - SHELLS_PER_FRAG;
-    const nextFrags = fragments + 1;
-    setShells(nextShells); setFragments(nextFrags);
-    await supabase.from('users').update({ shells_balance: nextShells, fragments: nextFrags }).eq('id', user.id);
+  const craftItem = async () => {
+    if (!user || shells < SHELLS_PER_ITEM || items >= MAX_ITEMS) return;
+    const nextShells = shells - SHELLS_PER_ITEM;
+    const nextItems = items + 1;
+    setShells(nextShells);
+    setItems(nextItems);
+    await supabase.from('users').update({ shells_balance: nextShells, items: nextItems }).eq('id', user.id);
     await supabase.from('fragments').insert({ user_id: user.id });
     refreshProfile();
   };
@@ -572,12 +590,12 @@ export default function ShellBlitz() {
             </div>
           </div>
           <div className="p-3.5 rounded-2xl text-center" style={{ background: 'linear-gradient(135deg,#06D6A0,#118AB2)', boxShadow: '0 4px 0 #048a67' }}>
-            <div className="text-xl font-black text-white">{fragments}/{MAX_FRAGMENTS}</div>
-            <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-0.5">Fragments</div>
+            <div className="text-xl font-black text-white">{items}/{MAX_ITEMS}</div>
+            <div className="text-[10px] font-bold text-white/70 uppercase tracking-widest mt-0.5">Items</div>
           </div>
         </div>
 
-        <FragmentCraftCard shells={shells} fragments={fragments} userId={user.id} evmWallet={user.evm_wallet || null} onCraft={craftFragment} onWalletSubmitted={refreshProfile} />
+        <ItemCraftCard shells={shells} items={items} userId={user.id} evmWallet={user.evm_wallet || null} onCraft={craftItem} onWalletSubmitted={refreshProfile} />
 
         <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
@@ -595,6 +613,7 @@ export default function ShellBlitz() {
           <DailyClaimGrid userId={user.id} onClaim={addShells} />
         </div>
 
+        {/* One-Time Tasks */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#8B5CF6' }}>One-Time</span>
@@ -602,11 +621,19 @@ export default function ShellBlitz() {
           </div>
           <div className="space-y-2">
             {oneTimeQuests.map(q => (
-              <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} onOpenSubmission={q.requiresSubmission ? () => setShowArticleModal(true) : undefined} />
+              <QuestItem
+                key={q.id}
+                quest={q}
+                locked={false}
+                onComplete={completeQuest}
+                onOpenSubmission={q.requiresSubmission ? () => setShowArticleModal(true) : undefined}
+                onOpenArt={q.id === 'submit_art' ? () => setShowArtModal(true) : undefined}
+              />
             ))}
           </div>
         </div>
 
+        {/* Day 1 Tasks */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
@@ -617,6 +644,7 @@ export default function ShellBlitz() {
           </div>
         </div>
 
+        {/* Day 2 Tasks */}
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: day2Unlocked ? '#FF6B35' : '#f0f0f0', color: day2Unlocked ? 'white' : '#bbb' }}>Day 2</span>
@@ -630,15 +658,6 @@ export default function ShellBlitz() {
         </div>
 
         <ReferralSection handle={user.twitter_handle} count={user.referral_count} />
-
-        <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">🎨</span>
-            <span className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Your Art</span>
-          </div>
-          <p className="text-xs text-gray-400 mb-3">Upload your art and link your X post tagging @planetslog</p>
-          <button onClick={() => setShowArtModal(true)} className="w-full py-2.5 rounded-xl text-sm font-black text-white" style={{ background: '#FF6B35', boxShadow: '0 3px 0 #c04a1a' }}>Submit Art</button>
-        </div>
       </div>
 
       <ArtUploadModal isOpen={showArtModal} onClose={() => setShowArtModal(false)} userId={user.id} />
