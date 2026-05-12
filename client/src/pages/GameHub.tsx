@@ -44,15 +44,15 @@ const PAGES = [
     live: false,
   },
   {
-    id: 'customize',
-    path: '/customize',
-    label: 'Customize',
+    id: 'community-frens',
+    path: '/frens',
+    label: 'Community Frens',
     sub: 'Coming Season 2',
     color: '#EF476F',
     shadow: '#b0244e',
     glow: 'rgba(239,71,111,0.25)',
-    emoji: '🎨',
-    image: ASSETS.customise,
+    emoji: '👥',
+    image: ASSETS.slogfrens,        // ← NEW IMAGE
     live: false,
   },
   {
