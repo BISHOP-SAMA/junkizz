@@ -38,17 +38,17 @@ const SUBMISSION_CONFIG: Record<string, { title: string; description: string; pl
   },
   retweet: {
     title: 'Submit Retweet',
-    description: 'Like and retweet the post, then paste your retweet link below.',
+    description: 'Paste your retweet link below to confirm you liked & retweeted.',
     placeholder: 'https://x.com/.../status/...'
   },
   comment: {
     title: 'Submit Comment',
-    description: 'Comment on the post and tag 3 friends, then paste your comment link below.',
+    description: 'Paste your comment link below to confirm you tagged 3 friends.',
     placeholder: 'https://x.com/.../status/...'
   },
   d2_comment: {
     title: 'Submit Day 2 Comment',
-    description: 'Comment on the Day 2 post and tag 3 friends, then paste your comment link below.',
+    description: 'Paste your Day 2 comment link below to confirm you tagged 3 friends.',
     placeholder: 'https://x.com/.../status/...'
   }
 };
@@ -318,12 +318,13 @@ function BoxGrid({ onEarn, userId }: { onEarn: (n: number) => void; userId: stri
   );
 }
 
-// ─── Timer lives ON the button ───
+// ─── Quest Item with two-step flow (Visit → Submit) ───
 function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
   quest: Quest; locked: boolean; onComplete: (id: string) => void; onOpenSubmission?: (id: string) => void; onOpenArt?: () => void;
 }) {
   const [timerLeft, setTimerLeft] = useState<number | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [awaitingSubmission, setAwaitingSubmission] = useState(false);
 
   useEffect(() => {
     if (timerLeft === null || timerLeft <= 0) return;
@@ -339,22 +340,38 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
   useEffect(() => {
     if (timerLeft === 0 && !completing) {
       setCompleting(true);
-      onComplete(quest.id).then(() => {
+      if (quest.requiresSubmission) {
+        // Timer done — now show Submit button instead of auto-completing
+        setAwaitingSubmission(true);
         setTimerLeft(null);
         setCompleting(false);
-      });
+      } else {
+        onComplete(quest.id).then(() => {
+          setTimerLeft(null);
+          setCompleting(false);
+        });
+      }
     }
-  }, [timerLeft, completing, quest.id, onComplete]);
+  }, [timerLeft, completing, quest.id, onComplete, quest.requiresSubmission]);
 
   const handle = () => {
     if (quest.done || locked || timerLeft !== null || completing) return;
     if (quest.id === 'submit_art' && onOpenArt) { onOpenArt(); return; }
-    if (quest.requiresSubmission && onOpenSubmission) { onOpenSubmission(quest.id); return; }
+    if (awaitingSubmission && onOpenSubmission) { onOpenSubmission(quest.id); return; }
     if (quest.url) { window.open(quest.url, '_blank'); setTimerLeft(QUEST_TIMER_SECONDS); return; }
+    if (quest.requiresSubmission && onOpenSubmission) { onOpenSubmission(quest.id); return; }
     onComplete(quest.id);
   };
 
   const isCounting = timerLeft !== null && timerLeft > 0;
+
+  // Button text logic
+  let btnText = 'Go →';
+  if (isCounting) btnText = `${timerLeft}s`;
+  else if (completing) btnText = '···';
+  else if (awaitingSubmission) btnText = 'Submit →';
+  else if (quest.id === 'submit_art') btnText = 'Submit →';
+  else if (quest.requiresSubmission && !quest.url) btnText = 'Submit →';
 
   return (
     <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3 p-3 rounded-2xl"
@@ -383,7 +400,7 @@ function QuestItem({ quest, locked, onComplete, onOpenSubmission, onOpenArt }: {
               cursor: isCounting ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
             }}>
-            {isCounting ? `${timerLeft}s` : completing ? '···' : quest.requiresSubmission || quest.id === 'submit_art' ? 'Submit →' : 'Go →'}
+            {btnText}
           </motion.button>
         )
       )}
@@ -514,13 +531,13 @@ export default function ShellBlitz() {
   const [quests, setQuests] = useState<Quest[]>([
     // Day 1 - Social Tasks
     { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
-    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, day: 1, requiresSubmission: true },
-    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, day: 1, requiresSubmission: true },
+    { id: 'retweet', icon: '🔁', label: 'Like & Quote', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
+    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
     
     // Day 2 - Social Tasks
     { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 2 },
     { id: 'claim_free_500', icon: '🎁', label: 'Claim Free 500 Shells', points: 0, shells: 500, done: false, day: 2 },
-    { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, day: 2, requiresSubmission: true },
+    { id: 'd2_comment', icon: '💬', label: 'Quote', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2, requiresSubmission: true },
     
     // One-time tasks (exactly 2)
     { id: 'write_about', icon: '✍️', label: 'Make a Short Post About Shell Blitz', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
