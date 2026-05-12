@@ -46,8 +46,8 @@ const PAGES = [
   {
     id: 'community-frens',
     path: '/frens',
-    label: 'Community Frens',
-    sub: 'Coming Season 2',
+    label: 'Community',
+    sub: 'Coming Season 1',
     color: '#EF476F',
     shadow: '#b0244e',
     glow: 'rgba(239,71,111,0.25)',
@@ -64,7 +64,7 @@ const PAGES = [
     shadow: '#0a5a7a',
     glow: 'rgba(17,138,178,0.25)',
     emoji: '🖼️',
-    image: ASSETS.shellblitz,
+    image: ASSETS.customize,
     live: false,
   },
 ];
