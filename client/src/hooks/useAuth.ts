@@ -1,13 +1,26 @@
-import { useState, useEffect } from 'react';
+// client/src/hooks/useAuth.ts
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 export function useAuth() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshProfile = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
+    
+    const { data } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+      
+    if (data) setProfile(data);
+  }, []);
+
   useEffect(() => {
     const ensureProfile = async (authUser: any) => {
-      console.log('Ensuring profile for:', authUser.id);
       const meta = authUser.user_metadata;
       const handle = meta.user_name || meta.preferred_username || 'you';
       const avatar = meta.avatar_url || '';
@@ -24,20 +37,17 @@ export function useAuth() {
         .select()
         .single();
 
-      console.log('Upsert result:', { data, error });
       if (error) console.error('UPSERT ERROR:', error.message);
       if (data) setProfile(data);
       setLoading(false);
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session?.user?.id ?? 'none');
       if (session?.user) ensureProfile(session.user);
       else setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('Auth state change:', _event, session?.user?.id);
       if (session?.user) ensureProfile(session.user);
       else { setProfile(null); setLoading(false); }
     });
@@ -57,5 +67,5 @@ export function useAuth() {
     setProfile(null);
   };
 
-  return { user: profile, loading, login, logout };
+  return { user: profile, loading, login, logout, refreshProfile };
 }
