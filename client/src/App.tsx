@@ -6,8 +6,11 @@ import Airdrop from './pages/Airdrop';
 import CommunityFrens from './pages/CommunityFrens';
 import ComingSoon from './pages/ComingSoon';
 import NotFound from './pages/NotFound';
+import { useReferral } from './hooks/useReferral';
 
 function App() {
+  useReferral(); // ← Track incoming referrals on every route
+
   return (
     <Switch>
       <Route path="/" component={Home} />
