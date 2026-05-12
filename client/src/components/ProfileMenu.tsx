@@ -63,9 +63,9 @@ export default function ProfileMenu() {
                 <div className="flex items-center justify-between p-2.5 rounded-xl" style={{ background: 'rgba(6,214,160,0.06)' }}>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">📦</span>
-                    <span className="text-xs font-bold text-[#1a1a2e]">Fragments</span>
+                    <span className="text-xs font-bold text-[#1a1a2e]">Items</span>   // ← CHANGED from "Fragments"
                   </div>
-                  <span className="text-sm font-black text-[#06D6A0]">{user.fragments}/{3}</span>
+                  <span className="text-sm font-black text-[#06D6A0]">{user.items}/{3}</span>  // ← CHANGED from fragments
                 </div>
 
                 <div className="flex items-center justify-between p-2.5 rounded-xl" style={{ background: 'rgba(245,158,11,0.06)' }}>
