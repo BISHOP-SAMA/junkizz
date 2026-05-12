@@ -455,11 +455,47 @@ export default function ShellBlitz() {
   const [fragments, setFragments] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
 
+  // Base quest list — all start as not done
+  const [quests, setQuests] = useState<Quest[]>([
+    { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
+    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1 },
+    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1 },
+    { id: 'd2_tbd', icon: '⭐', label: 'Day 2 Quest', points: 300, shells: 300, done: false, day: 2 },
+    { id: 'd2_q2', icon: '🌊', label: 'Day 2 Quest 2', points: 200, shells: 200, done: false, day: 2 },
+  ]);
+
+  // Load shells/fragments from user profile
   useEffect(() => {
     if (user) {
       setShells(user.shells_balance);
       setFragments(user.fragments ?? 0);
     }
+  }, [user]);
+
+  // 🔒 CRITICAL: Load completed quests from Supabase on every mount/login
+  // This prevents users from replaying quests after refresh or re-login
+  useEffect(() => {
+    if (!user) return;
+
+    const loadCompletedQuests = async () => {
+      const { data, error } = await supabase
+        .from('user_quests')
+        .select('quest_type')
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Failed to load quests:', error);
+        return;
+      }
+
+      const completed = new Set(data?.map(q => q.quest_type) || []);
+      setQuests(prev => prev.map(q => ({
+        ...q,
+        done: completed.has(q.id)
+      })));
+    };
+
+    loadCompletedQuests();
   }, [user]);
 
   const addShells = useCallback(async (amount: number) => {
@@ -481,21 +517,43 @@ export default function ShellBlitz() {
     refreshProfile();
   };
 
+  // 🔒 CRITICAL: Exploit-proof quest completion
+  // 1. Checks DB first to see if already completed (handles refresh/relogin)
+  // 2. Inserts record with unique constraint protection
+  // 3. Only awards shells if the DB insert actually succeeds
   const completeQuest = async (id: string) => {
     const quest = quests.find(q => q.id === id);
-    if (!quest || !user) return;
-    setQuests(q => q.map(q => q.id === id ? { ...q, done: true } : q));
-    await addShells(quest.shells);
-    await supabase.from('user_quests').insert({ user_id: user.id, quest_type: id });
-  };
+    if (!quest || !user || quest.done) return;
 
-  const [quests, setQuests] = useState<Quest[]>([
-    { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
-    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1 },
-    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1 },
-    { id: 'd2_tbd', icon: '⭐', label: 'Day 2 Quest', points: 300, shells: 300, done: false, day: 2 },
-    { id: 'd2_q2', icon: '🌊', label: 'Day 2 Quest 2', points: 200, shells: 200, done: false, day: 2 },
-  ]);
+    // Guard 1: Query DB to see if this quest is already recorded
+    const { data: existing } = await supabase
+      .from('user_quests')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('quest_type', id)
+      .maybeSingle();
+
+    if (existing) {
+      // Already in DB — sync UI and exit without awarding shells
+      setQuests(prev => prev.map(q => q.id === id ? { ...q, done: true } : q));
+      return;
+    }
+
+    // Guard 2: Insert the completion record
+    const { error: insertError } = await supabase
+      .from('user_quests')
+      .insert({ user_id: user.id, quest_type: id });
+
+    if (insertError) {
+      // If unique violation (23505) or any other error, do NOT award shells
+      console.error('Quest insert failed:', insertError);
+      return;
+    }
+
+    // Only after successful DB insert: update UI and award shells
+    setQuests(prev => prev.map(q => q.id === id ? { ...q, done: true } : q));
+    await addShells(quest.shells);
+  };
 
   if (!user) return null;
 
