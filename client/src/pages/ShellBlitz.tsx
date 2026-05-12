@@ -725,12 +725,15 @@ export default function ShellBlitz() {
         userId={user.id} 
         questId={activeSubmissionQuest || ''}
         onSubmitted={() => {
-          if (activeSubmissionQuest) {
-            completeQuest(activeSubmissionQuest);
-          }
-          setActiveSubmissionQuest(null);
-        }} 
-      />
+    // Don't complete or award shells — just mark as pending in UI
+    setQuests(prev => prev.map(q => 
+      q.id === activeSubmissionQuest 
+        ? { ...q, done: false } // keep not done, show pending state
+        : q
+    ));
+    setActiveSubmissionQuest(null);
+  }} 
+/>
     </GameLayout>
   );
 }
