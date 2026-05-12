@@ -479,8 +479,8 @@ export default function ShellBlitz() {
 
     const loadCompletedQuests = async () => {
       const { data, error } = await supabase
-        .from('user_quests')
-        .select('quest_type')
+        .from('quest_completions')
+        .select('quest_id')
         .eq('user_id', user.id);
 
       if (error) {
@@ -527,7 +527,7 @@ export default function ShellBlitz() {
 
     // Guard 1: Query DB to see if this quest is already recorded
     const { data: existing } = await supabase
-      .from('user_quests')
+      .from('quest_completions')
       .select('id')
       .eq('user_id', user.id)
       .eq('quest_type', id)
@@ -541,7 +541,7 @@ export default function ShellBlitz() {
 
     // Guard 2: Insert the completion record
     const { error: insertError } = await supabase
-      .from('user_quests')
+      .from('quest_completions')
       .insert({ user_id: user.id, quest_type: id });
 
     if (insertError) {
