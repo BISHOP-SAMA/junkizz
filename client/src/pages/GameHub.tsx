@@ -46,7 +46,7 @@ const PAGES = [
   {
     id: 'community-frens',
     path: '/frens',
-    label: 'Community',
+    label: 'Communities',
     sub: 'Coming Season 1',
     color: '#EF476F',
     shadow: '#b0244e',
