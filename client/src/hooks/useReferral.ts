@@ -1,20 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './useAuth';
 
 export function useReferral() {
-  const { user, refreshProfile } = useAuth();
+  const { user } = useAuth();
+  const processedRef = useRef(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || processedRef.current) return;
 
     const params = new URLSearchParams(window.location.search);
     const refHandle = params.get('ref');
     if (!refHandle) return;
 
-    // Prevent self-referral check on client too
-    if (refHandle === user.twitter_handle || refHandle === user.twitter_handle.replace('@', '')) {
-      console.log('[Referral] Self referral blocked');
+    // Prevent self-referral
+    const cleanHandle = refHandle.replace('@', '');
+    const userClean = user.twitter_handle.replace('@', '');
+    if (cleanHandle === userClean) {
       window.history.replaceState({}, '', window.location.pathname);
       return;
     }
@@ -29,17 +31,14 @@ export function useReferral() {
         return;
       }
 
-      console.log('[Referral] Result:', data);
-
       if (data?.success) {
-        console.log('[Referral] Success! 120 shells awarded to', data.referrer);
-        refreshProfile(); // refresh current user's profile if needed
+        console.log('[Referral] Success! Awarded to', data.referrer);
+        processedRef.current = true;
       }
 
-      // Clean URL regardless of outcome
       window.history.replaceState({}, '', window.location.pathname);
     };
 
     process();
-  }, [user, refreshProfile]);
+  }, [user]);
 }
