@@ -6,6 +6,7 @@ import { ShellIcon } from '../components/ShellIcon';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { ASSETS } from '../lib/assets';
+import ArtUploadModal from '../components/ArtUploadModal';
 
 type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number };
 
@@ -44,6 +45,112 @@ function FragmentOrbs({ count }: { count: number }) {
           {i < count ? '◆' : '◇'}
         </motion.div>
       ))}
+    </div>
+  );
+}
+
+function WalletSubmission({ userId, currentWallet, onSubmitted }: { userId: string; currentWallet: string | null; onSubmitted: () => void }) {
+  const [wallet, setWallet] = useState(currentWallet || '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [submitted, setSubmitted] = useState(!!currentWallet);
+
+  useEffect(() => {
+    if (currentWallet) {
+      setWallet(currentWallet);
+      setSubmitted(true);
+    }
+  }, [currentWallet]);
+
+  const handleSubmit = async () => {
+    if (submitted) return;
+    const trimmed = wallet.trim();
+    if (!/^0x[a-fA-F0-9]{40}$/.test(trimmed)) {
+      setError('Please enter a valid EVM wallet address (0x...)');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    const { error: err } = await supabase
+      .from('users')
+      .update({ evm_wallet: trimmed })
+      .eq('id', userId);
+    setLoading(false);
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    setSubmitted(true);
+    onSubmitted();
+  };
+
+  if (submitted) {
+    return (
+      <div className="p-3 rounded-xl text-center text-sm font-black" style={{ background: 'rgba(6,214,160,0.1)', border: '1.5px solid rgba(6,214,160,0.3)', color: '#048a67' }}>
+        🎉 Wallet submitted: {wallet.slice(0, 6)}...{wallet.slice(-4)}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="text-xs font-bold" style={{ color: '#92400e' }}>Submit your EVM wallet to receive rewards:</div>
+      <input
+        type="text"
+        value={wallet}
+        onChange={(e) => setWallet(e.target.value)}
+        placeholder="0x..."
+        className="w-full px-3 py-2 rounded-xl text-sm font-mono"
+        style={{ background: '#fafafa', border: '1.5px solid rgba(245,158,11,0.3)', color: '#1a1a2e' }}
+      />
+      {error && <div className="text-[10px] font-bold" style={{ color: '#EF476F' }}>{error}</div>}
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        onClick={handleSubmit}
+        disabled={loading}
+        className="w-full py-2.5 rounded-xl text-sm font-black"
+        style={{ background: loading ? '#eee' : 'linear-gradient(135deg, #f59e0b, #fde68a)', color: loading ? '#bbb' : '#92400e', border: '1.5px solid rgba(245,158,11,0.4)', cursor: loading ? 'not-allowed' : 'pointer' }}
+      >
+        {loading ? 'Saving...' : 'Submit Wallet ✓'}
+      </motion.button>
+    </div>
+  );
+}
+
+function FragmentCraftCard({ shells, fragments, userId, evmWallet, onCraft, onWalletSubmitted }: { shells: number; fragments: number; userId: string; evmWallet: string | null; onCraft: () => void; onWalletSubmitted: () => void }) {
+  const canCraft = shells >= SHELLS_PER_FRAG && fragments < MAX_FRAGMENTS;
+  const progress = Math.min((shells / (SHELLS_PER_FRAG * MAX_FRAGMENTS)) * 100, 100);
+
+  return (
+    <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(245,158,11,0.2)', boxShadow: '0 2px 12px rgba(245,158,11,0.08)' }}>
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <div className="text-sm font-black" style={{ color: '#1a1a2e' }}>Golden Shell</div>
+          <div className="text-[10px] mt-0.5" style={{ color: '#888' }}>1,500 🐚 per fragment · 3 to mint</div>
+        </div>
+        <motion.img src={ASSETS.goldenShell} alt="golden shell" className="w-12 h-12 object-contain"
+          animate={fragments > 0 ? { rotate: [0, 5, -5, 0] } : {}} transition={{ duration: 4, repeat: Infinity, delay: 2 }}
+          style={{ filter: fragments === 0 ? 'grayscale(0.8) opacity(0.5)' : 'drop-shadow(0 0 8px rgba(245,158,11,0.7))' }} />
+      </div>
+      <FragmentOrbs count={fragments} />
+      <div className="mt-3 mb-3">
+        <div className="flex justify-between text-[10px] mb-1" style={{ color: '#aaa', fontFamily: 'monospace' }}>
+          <span>{shells.toLocaleString()} shells</span>
+          <span>{(SHELLS_PER_FRAG * MAX_FRAGMENTS).toLocaleString()} goal</span>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
+          <motion.div className="h-full rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.6, ease: 'easeOut' }} style={{ background: 'linear-gradient(90deg, #f59e0b, #fde68a)' }} />
+        </div>
+      </div>
+      {fragments === MAX_FRAGMENTS ? (
+        <WalletSubmission userId={userId} currentWallet={evmWallet} onSubmitted={onWalletSubmitted} />
+      ) : (
+        <motion.button whileHover={canCraft ? { scale: 1.02 } : {}} whileTap={canCraft ? { scale: 0.97 } : {}} onClick={onCraft} disabled={!canCraft} className="w-full py-2.5 rounded-xl text-sm font-black"
+          style={{ background: canCraft ? 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(253,230,138,0.2))' : 'rgba(0,0,0,0.04)', border: canCraft ? '1.5px solid rgba(245,158,11,0.4)' : '1.5px solid rgba(0,0,0,0.06)', color: canCraft ? '#92400e' : '#ccc', cursor: canCraft ? 'pointer' : 'not-allowed' }}>
+          {canCraft ? `Craft Fragment ${fragments + 1} ✦` : `Need ${Math.max(0, SHELLS_PER_FRAG - (shells % SHELLS_PER_FRAG || SHELLS_PER_FRAG))} more 🐚`}
+        </motion.button>
+      )}
     </div>
   );
 }
@@ -342,50 +449,11 @@ function ReferralSection({ handle, count = 0 }: { handle: string; count?: number
   );
 }
 
-function FragmentCraftCard({ shells, fragments, onCraft }: { shells: number; fragments: number; onCraft: () => void }) {
-  const canCraft = shells >= SHELLS_PER_FRAG && fragments < MAX_FRAGMENTS;
-  const progress = Math.min((shells / (SHELLS_PER_FRAG * MAX_FRAGMENTS)) * 100, 100);
-
-  return (
-    <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(245,158,11,0.2)', boxShadow: '0 2px 12px rgba(245,158,11,0.08)' }}>
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <div className="text-sm font-black" style={{ color: '#1a1a2e' }}>Golden Shell</div>
-          <div className="text-[10px] mt-0.5" style={{ color: '#888' }}>1,500 🐚 per fragment · 3 to mint</div>
-        </div>
-        <motion.img src={ASSETS.goldenShell} alt="golden shell" className="w-12 h-12 object-contain"
-          animate={fragments > 0 ? { rotate: [0, 5, -5, 0] } : {}} transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-          style={{ filter: fragments === 0 ? 'grayscale(0.8) opacity(0.5)' : 'drop-shadow(0 0 8px rgba(245,158,11,0.7))' }} />
-      </div>
-      <FragmentOrbs count={fragments} />
-      <div className="mt-3 mb-3">
-        <div className="flex justify-between text-[10px] mb-1" style={{ color: '#aaa', fontFamily: 'monospace' }}>
-          <span>{shells.toLocaleString()} shells</span>
-          <span>{(SHELLS_PER_FRAG * MAX_FRAGMENTS).toLocaleString()} goal</span>
-        </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
-          <motion.div className="h-full rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.6, ease: 'easeOut' }} style={{ background: 'linear-gradient(90deg, #f59e0b, #fde68a)' }} />
-        </div>
-      </div>
-      {fragments === MAX_FRAGMENTS ? (
-        <div className="p-3 rounded-xl text-center text-sm font-black" style={{ background: 'rgba(245,158,11,0.1)', border: '1.5px solid rgba(245,158,11,0.3)', color: '#92400e' }}>
-          🎉 All 3 fragments crafted — submit your EVM wallet!
-        </div>
-      ) : (
-        <motion.button whileHover={canCraft ? { scale: 1.02 } : {}} whileTap={canCraft ? { scale: 0.97 } : {}} onClick={onCraft} disabled={!canCraft} className="w-full py-2.5 rounded-xl text-sm font-black"
-          style={{ background: canCraft ? 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(253,230,138,0.2))' : 'rgba(0,0,0,0.04)', border: canCraft ? '1.5px solid rgba(245,158,11,0.4)' : '1.5px solid rgba(0,0,0,0.06)', color: canCraft ? '#92400e' : '#ccc', cursor: canCraft ? 'pointer' : 'not-allowed' }}>
-          {canCraft ? `Craft Fragment ${fragments + 1} ✦` : `Need ${Math.max(0, SHELLS_PER_FRAG - (shells % SHELLS_PER_FRAG || SHELLS_PER_FRAG))} more 🐚`}
-        </motion.button>
-      )}
-    </div>
-  );
-}
-
 export default function ShellBlitz() {
   const { user, refreshProfile } = useAuth();
   const [shells, setShells] = useState(0);
   const [fragments, setFragments] = useState(0);
-  const [artSubmitted, setArtSubmitted] = useState(false);
+  const [showArtModal, setShowArtModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -448,7 +516,14 @@ export default function ShellBlitz() {
           </div>
         </div>
 
-        <FragmentCraftCard shells={shells} fragments={fragments} onCraft={craftFragment} />
+        <FragmentCraftCard
+          shells={shells}
+          fragments={fragments}
+          userId={user.id}
+          evmWallet={user.evm_wallet || null}
+          onCraft={craftFragment}
+          onWalletSubmitted={refreshProfile}
+        />
 
         <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
@@ -488,24 +563,23 @@ export default function ShellBlitz() {
 
         <ReferralSection handle={user.twitter_handle} count={user.referral_count} />
 
-        {user && !artSubmitted && (
-          <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-xl">🎨</span>
-              <span className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Your Art</span>
-            </div>
-            <p className="text-xs text-gray-400 mb-3">Post your art on X tagging @planetslog</p>
-            <button onClick={() => setArtSubmitted(true)} className="w-full py-2.5 rounded-xl text-sm font-black text-white" style={{ background: '#FF6B35', boxShadow: '0 3px 0 #c04a1a' }}>
-              Submit
-            </button>
+        <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.15)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xl">🎨</span>
+            <span className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Your Art</span>
           </div>
-        )}
-        {artSubmitted && (
-          <div className="p-3 rounded-2xl text-center text-xs font-bold" style={{ background: 'rgba(6,214,160,0.08)', color: '#048a67', border: '1.5px solid rgba(6,214,160,0.2)' }}>
-            🎨 Art submission received
-          </div>
-        )}
+          <p className="text-xs text-gray-400 mb-3">Upload your art and link your X post tagging @planetslog</p>
+          <button onClick={() => setShowArtModal(true)} className="w-full py-2.5 rounded-xl text-sm font-black text-white" style={{ background: '#FF6B35', boxShadow: '0 3px 0 #c04a1a' }}>
+            Submit Art
+          </button>
+        </div>
       </div>
+
+      <ArtUploadModal
+        isOpen={showArtModal}
+        onClose={() => setShowArtModal(false)}
+        userId={user.id}
+      />
     </GameLayout>
   );
 }
