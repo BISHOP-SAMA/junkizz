@@ -8,13 +8,16 @@ import { supabase } from '../lib/supabase';
 import { ASSETS } from '../lib/assets';
 import ArtUploadModal from '../components/ArtUploadModal';
 
-type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number };
+type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number; oneTime?: boolean };
 
 const PLANETSLOG_URL = 'https://x.com/planetslog?s=21';
 const TWEET_URL = 'https://x.com/planetslog/status/2052019506881458402?s=46';
+const DAY2_TWEET_URL = 'https://x.com/planetslog/status/2051376348380463131?s=46';
+const GARY_URL = 'https://x.com/garythecleaner1?s=21';
 const SHELLS_PER_FRAG = 1500;
 const MAX_FRAGMENTS = 3;
 const BOX_COOLDOWN_MS = 3 * 60 * 60 * 1000;
+const DAY2_UNLOCK_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const DAILY_REWARDS = [
   { day: 1, shells: 200 },
@@ -454,14 +457,20 @@ export default function ShellBlitz() {
   const [shells, setShells] = useState(0);
   const [fragments, setFragments] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
+  const [day2Unlocked, setDay2Unlocked] = useState(false);
+  const [day2TimeLeft, setDay2TimeLeft] = useState(0);
 
-  // Base quest list — all start as not done
   const [quests, setQuests] = useState<Quest[]>([
+    // Day 1 - Social Tasks
     { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
     { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1 },
     { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1 },
-    { id: 'd2_tbd', icon: '⭐', label: 'Day 2 Quest', points: 300, shells: 300, done: false, day: 2 },
-    { id: 'd2_q2', icon: '🌊', label: 'Day 2 Quest 2', points: 200, shells: 200, done: false, day: 2 },
+    // Day 2 - Social Tasks (same pattern, new tweet)
+    { id: 'd2_retweet', icon: '🔁', label: 'Like & Retweet Day 2', points: 150, shells: 150, done: false, url: DAY2_TWEET_URL, day: 2 },
+    { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2 },
+    // One-time tasks
+    { id: 'write_about', icon: '✍️', label: 'Write About PlanetSlog', points: 500, shells: 1500, done: false, url: PLANETSLOG_URL, day: 1, oneTime: true },
+    { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 1, oneTime: true },
   ]);
 
   // Load shells/fragments from user profile
@@ -472,8 +481,38 @@ export default function ShellBlitz() {
     }
   }, [user]);
 
-  // 🔒 CRITICAL: Load completed quests from Supabase on every mount/login
-  // This prevents users from replaying quests after refresh or re-login
+  // Day 2 unlock timer: 24h after first page visit (stored per user)
+  useEffect(() => {
+    if (!user) return;
+    const key = `day2_unlock_${user.id}`;
+    const saved = localStorage.getItem(key);
+    let unlockTime: number;
+
+    if (saved) {
+      unlockTime = parseInt(saved, 10);
+    } else {
+      // First visit — set unlock time to 24h from now
+      unlockTime = Date.now() + DAY2_UNLOCK_MS;
+      localStorage.setItem(key, unlockTime.toString());
+    }
+
+    const updateTimer = () => {
+      const left = unlockTime - Date.now();
+      if (left <= 0) {
+        setDay2Unlocked(true);
+        setDay2TimeLeft(0);
+      } else {
+        setDay2Unlocked(false);
+        setDay2TimeLeft(left);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // Load completed quests from Supabase
   useEffect(() => {
     if (!user) return;
 
@@ -488,7 +527,7 @@ export default function ShellBlitz() {
         return;
       }
 
-      const completed = new Set(data?.map(q => q.quest_type) || []);
+      const completed = new Set(data?.map(q => q.quest_id) || []);
       setQuests(prev => prev.map(q => ({
         ...q,
         done: completed.has(q.id)
@@ -517,43 +556,49 @@ export default function ShellBlitz() {
     refreshProfile();
   };
 
-  // 🔒 CRITICAL: Exploit-proof quest completion
-  // 1. Checks DB first to see if already completed (handles refresh/relogin)
-  // 2. Inserts record with unique constraint protection
-  // 3. Only awards shells if the DB insert actually succeeds
+  // Exploit-proof quest completion
   const completeQuest = async (id: string) => {
     const quest = quests.find(q => q.id === id);
     if (!quest || !user || quest.done) return;
 
-    // Guard 1: Query DB to see if this quest is already recorded
+    // Guard 1: Check DB first
     const { data: existing } = await supabase
       .from('quest_completions')
       .select('id')
       .eq('user_id', user.id)
-      .eq('quest_type', id)
+      .eq('quest_id', id)
       .maybeSingle();
 
     if (existing) {
-      // Already in DB — sync UI and exit without awarding shells
       setQuests(prev => prev.map(q => q.id === id ? { ...q, done: true } : q));
       return;
     }
 
-    // Guard 2: Insert the completion record
+    // Guard 2: Insert with unique constraint protection
     const { error: insertError } = await supabase
       .from('quest_completions')
-      .insert({ user_id: user.id, quest_type: id });
+      .insert({ user_id: user.id, quest_id: id });
 
     if (insertError) {
-      // If unique violation (23505) or any other error, do NOT award shells
       console.error('Quest insert failed:', insertError);
       return;
     }
 
-    // Only after successful DB insert: update UI and award shells
     setQuests(prev => prev.map(q => q.id === id ? { ...q, done: true } : q));
     await addShells(quest.shells);
   };
+
+  const fmtTime = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    return `${h}h ${m.toString().padStart(2, '0')}m ${sec.toString().padStart(2, '0')}s`;
+  };
+
+  const day1Quests = quests.filter(q => q.day === 1 && !q.oneTime);
+  const day2Quests = quests.filter(q => q.day === 2);
+  const oneTimeQuests = quests.filter(q => q.oneTime);
 
   if (!user) return null;
 
@@ -599,23 +644,40 @@ export default function ShellBlitz() {
           <DailyClaimGrid userId={user.id} onClaim={addShells} />
         </div>
 
+        {/* One-Time Tasks */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#8B5CF6' }}>One-Time</span>
+            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Bonus Tasks</span>
+          </div>
+          <div className="space-y-2">
+            {oneTimeQuests.map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
+          </div>
+        </div>
+
+        {/* Day 1 Tasks */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 mb-2.5">
             <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
             <span className="text-xs font-bold" style={{ color: '#aaa' }}>Social Tasks</span>
           </div>
           <div className="space-y-2">
-            {quests.filter(q => q.day === 1).map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
+            {day1Quests.map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
           </div>
         </div>
 
+        {/* Day 2 Tasks */}
         <div>
           <div className="flex items-center gap-2 mb-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: '#f0f0f0', color: '#bbb' }}>Day 2+</span>
-            <span className="text-xs font-bold" style={{ color: '#ccc' }}>Unlocks soon</span>
+            <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: day2Unlocked ? '#FF6B35' : '#f0f0f0', color: day2Unlocked ? 'white' : '#bbb' }}>Day 2</span>
+            <span className="text-xs font-bold" style={{ color: day2Unlocked ? '#aaa' : '#ccc' }}>
+              {day2Unlocked ? 'Social Tasks' : `Unlocks in ${fmtTime(day2TimeLeft)}`}
+            </span>
           </div>
           <div className="space-y-2">
-            {quests.filter(q => q.day > 1).map(q => <QuestItem key={q.id} quest={q} locked={true} onComplete={completeQuest} />)}
+            {day2Quests.map(q => (
+              <QuestItem key={q.id} quest={q} locked={!day2Unlocked} onComplete={completeQuest} />
+            ))}
           </div>
         </div>
 
