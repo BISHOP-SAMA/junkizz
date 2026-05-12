@@ -11,7 +11,7 @@ import ArtUploadModal from '../components/ArtUploadModal';
 type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number; oneTime?: boolean; requiresSubmission?: boolean };
 
 const PLANETSLOG_URL = 'https://x.com/planetslog?s=21';
-const TWEET_URL = 'https://x.com/planetslog/status/2052019506881458402?s=46';
+const TWEET_URL = 'https://x.com/planetslog/status/2054200732283256900?s=46';
 const DAY2_TWEET_URL = 'https://x.com/planetslog/status/2051376348380463131?s=46';
 const GARY_URL = 'https://x.com/garythecleaner1?s=21';
 const SHELLS_PER_ITEM = 1500;
