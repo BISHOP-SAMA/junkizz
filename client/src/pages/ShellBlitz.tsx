@@ -30,29 +30,54 @@ const DAILY_REWARDS = [
   { day: 7, shells: 1000 },
 ];
 
-// ─── Article Submission Modal ───
-function ArticleSubmissionModal({ isOpen, onClose, userId, onSubmitted }: {
-  isOpen: boolean; onClose: () => void; userId: string; onSubmitted: () => void;
+const SUBMISSION_CONFIG: Record<string, { title: string; description: string; placeholder: string }> = {
+  write_about: {
+    title: 'Submit Post',
+    description: 'Make a short post about the Shell Blitz campaign and paste your X post link below.',
+    placeholder: 'https://x.com/.../status/...'
+  },
+  retweet: {
+    title: 'Submit Retweet',
+    description: 'Like and retweet the post, then paste your retweet link below.',
+    placeholder: 'https://x.com/.../status/...'
+  },
+  comment: {
+    title: 'Submit Comment',
+    description: 'Comment on the post and tag 3 friends, then paste your comment link below.',
+    placeholder: 'https://x.com/.../status/...'
+  },
+  d2_comment: {
+    title: 'Submit Day 2 Comment',
+    description: 'Comment on the Day 2 post and tag 3 friends, then paste your comment link below.',
+    placeholder: 'https://x.com/.../status/...'
+  }
+};
+
+// ─── Generic Quest Submission Modal ───
+function QuestSubmissionModal({ isOpen, onClose, userId, questId, onSubmitted }: {
+  isOpen: boolean; onClose: () => void; userId: string; questId: string; onSubmitted: () => void;
 }) {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
+  const config = SUBMISSION_CONFIG[questId] || SUBMISSION_CONFIG.write_about;
+
   useEffect(() => {
     if (isOpen) { setUrl(''); setError(''); setSubmitted(false); setLoading(false); }
-  }, [isOpen]);
+  }, [isOpen, questId]);
 
   const handleSubmit = async () => {
-    if (!url.trim()) { setError('Please enter your article link'); return; }
+    if (!url.trim()) { setError('Please enter a link'); return; }
     if (!url.startsWith('http')) { setError('Please enter a valid URL'); return; }
     setLoading(true); setError('');
     const { error: err } = await supabase
-      .from('article_submissions')
-      .insert({ user_id: userId, article_url: url.trim(), status: 'pending' });
+      .from('quest_submissions')
+      .insert({ user_id: userId, quest_id: questId, submission_url: url.trim(), status: 'pending' });
     setLoading(false);
     if (err) {
-      if (err.code === '23505') setError('You already submitted an article.');
+      if (err.code === '23505') setError('You already submitted this.');
       else setError(err.message);
       return;
     }
@@ -72,20 +97,20 @@ function ArticleSubmissionModal({ isOpen, onClose, userId, onSubmitted }: {
             className="w-full max-w-sm rounded-2xl p-5 space-y-4"
             style={{ background: 'white', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black" style={{ color: '#1a1a2e' }}>Submit Article</h3>
+              <h3 className="text-sm font-black" style={{ color: '#1a1a2e' }}>{config.title}</h3>
               <button onClick={onClose} className="w-8 h-8 rounded-full flex items-center justify-center text-lg" style={{ background: '#f4f4f4', color: '#888' }}>×</button>
             </div>
             {submitted ? (
               <div className="py-6 text-center">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-4xl mb-2">⏳</motion.div>
-                <div className="text-sm font-black" style={{ color: '#8B5CF6' }}>Pending Approval</div>
-                <div className="text-xs text-gray-400 mt-1">We'll review your article and assign shells soon.</div>
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-4xl mb-2">✓</motion.div>
+                <div className="text-sm font-black" style={{ color: '#8B5CF6' }}>Submitted</div>
+                <div className="text-xs text-gray-400 mt-1">Your proof has been recorded.</div>
               </div>
             ) : (
               <>
-                <p className="text-xs text-gray-400">Write about the Shell Blitz campaign and paste your article or X post link below.</p>
+                <p className="text-xs text-gray-400">{config.description}</p>
                 <input type="text" value={url} onChange={e => setUrl(e.target.value)}
-                  placeholder="https://medium.com/... or https://x.com/..."
+                  placeholder={config.placeholder}
                   className="w-full px-3 py-2.5 rounded-xl text-sm"
                   style={{ background: '#fafafa', border: '1.5px solid #ececec', color: '#1a1a2e' }} />
                 {error && <div className="text-[10px] font-bold px-3 py-2 rounded-lg" style={{ background: 'rgba(239,71,111,0.08)', color: '#EF476F', border: '1px solid rgba(239,71,111,0.2)' }}>{error}</div>}
@@ -93,7 +118,7 @@ function ArticleSubmissionModal({ isOpen, onClose, userId, onSubmitted }: {
                   onClick={handleSubmit} disabled={loading}
                   className="w-full py-3 rounded-xl text-sm font-black text-white"
                   style={{ background: loading ? '#eee' : 'linear-gradient(135deg, #8B5CF6, #A78BFA)', boxShadow: loading ? 'none' : '0 4px 0 #6d28d9', color: loading ? '#bbb' : 'white', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? 'Submitting...' : 'Submit Article →'}
+                  {loading ? 'Submitting...' : 'Submit Link →'}
                 </motion.button>
               </>
             )}
@@ -481,7 +506,7 @@ export default function ShellBlitz() {
   const [shells, setShells] = useState(0);
   const [items, setItems] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
-  const [showArticleModal, setShowArticleModal] = useState(false);
+  const [activeSubmissionQuest, setActiveSubmissionQuest] = useState<string | null>(null);
   const [day2Unlocked, setDay2Unlocked] = useState(false);
   const [day2TimeLeft, setDay2TimeLeft] = useState(0);
 
@@ -489,13 +514,13 @@ export default function ShellBlitz() {
   const [quests, setQuests] = useState<Quest[]>([
     // Day 1 - Social Tasks
     { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
-    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1 },
-    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1 },
+    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, day: 1, requiresSubmission: true },
+    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, day: 1, requiresSubmission: true },
     
     // Day 2 - Social Tasks
     { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 2 },
     { id: 'claim_free_500', icon: '🎁', label: 'Claim Free 500 Shells', points: 0, shells: 500, done: false, day: 2 },
-    { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2 },
+    { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, day: 2, requiresSubmission: true },
     
     // One-time tasks (exactly 2)
     { id: 'write_about', icon: '✍️', label: 'Make a Short Post About Shell Blitz', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
@@ -626,7 +651,7 @@ export default function ShellBlitz() {
                 quest={q}
                 locked={false}
                 onComplete={completeQuest}
-                onOpenSubmission={q.requiresSubmission ? () => setShowArticleModal(true) : undefined}
+                onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
                 onOpenArt={q.id === 'submit_art' ? () => setShowArtModal(true) : undefined}
               />
             ))}
@@ -640,7 +665,15 @@ export default function ShellBlitz() {
             <span className="text-xs font-bold" style={{ color: '#aaa' }}>Social Tasks</span>
           </div>
           <div className="space-y-2">
-            {day1Quests.map(q => <QuestItem key={q.id} quest={q} locked={false} onComplete={completeQuest} />)}
+            {day1Quests.map(q => (
+              <QuestItem 
+                key={q.id} 
+                quest={q} 
+                locked={false} 
+                onComplete={completeQuest} 
+                onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
+              />
+            ))}
           </div>
         </div>
 
@@ -653,7 +686,15 @@ export default function ShellBlitz() {
             </span>
           </div>
           <div className="space-y-2">
-            {day2Quests.map(q => <QuestItem key={q.id} quest={q} locked={!day2Unlocked} onComplete={completeQuest} />)}
+            {day2Quests.map(q => (
+              <QuestItem 
+                key={q.id} 
+                quest={q} 
+                locked={!day2Unlocked} 
+                onComplete={completeQuest} 
+                onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
+              />
+            ))}
           </div>
         </div>
 
@@ -661,8 +702,18 @@ export default function ShellBlitz() {
       </div>
 
       <ArtUploadModal isOpen={showArtModal} onClose={() => setShowArtModal(false)} userId={user.id} />
-      <ArticleSubmissionModal isOpen={showArticleModal} onClose={() => setShowArticleModal(false)} userId={user.id}
-        onSubmitted={() => setQuests(prev => prev.map(q => q.id === 'write_about' ? { ...q, done: true } : q))} />
+      <QuestSubmissionModal 
+        isOpen={!!activeSubmissionQuest} 
+        onClose={() => setActiveSubmissionQuest(null)} 
+        userId={user.id} 
+        questId={activeSubmissionQuest || ''}
+        onSubmitted={() => {
+          if (activeSubmissionQuest) {
+            completeQuest(activeSubmissionQuest);
+          }
+          setActiveSubmissionQuest(null);
+        }} 
+      />
     </GameLayout>
   );
 }
