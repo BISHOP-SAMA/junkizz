@@ -33,9 +33,9 @@ const DAILY_REWARDS = [
 const SUBMISSION_CONFIG: Record<string, { title: string; description: string; placeholder: string }> = {
   // ... other configs
   d2_comment: {
-    title: 'Submit Day 2 Comment',
-    // Change this line:
-    description: 'Paste your Day 2 comment link below to confirm your entry.', 
+    title: 'Submit Day 2 Verification',
+    // Updated description below:
+    description: 'Paste your profile or interaction link below to confirm you Liked & Retweeted.',
     placeholder: 'https://x.com/.../status/...'
   }
 };
