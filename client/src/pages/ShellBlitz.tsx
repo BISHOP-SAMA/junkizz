@@ -517,7 +517,7 @@ export default function ShellBlitz() {
     { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
     { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 2 },
     { id: 'claim_free_500', icon: '🎁', label: 'Claim Free 500 Shells', points: 0, shells: 500, done: false, day: 2 },
-    { id: 'd2_comment', icon: '💬', label: 'Comment & Tag 3 Frens Day 2', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2, requiresSubmission: true },
+    { id: 'd2_comment', icon: '💬', label: 'Comment', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2, requiresSubmission: true },
     { id: 'write_about', icon: '✍️', label: 'Make a Short Post About Shell Blitz', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
     { id: 'submit_art', icon: '🎨', label: 'Submit Your Art', points: 300, shells: 800, done: false, day: 1, oneTime: true },
   ]);
