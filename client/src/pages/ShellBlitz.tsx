@@ -31,24 +31,11 @@ const DAILY_REWARDS = [
 ];
 
 const SUBMISSION_CONFIG: Record<string, { title: string; description: string; placeholder: string }> = {
-  write_about: {
-    title: 'Submit Post',
-    description: 'Make a short post about the Shell Blitz campaign and paste your X post link below.',
-    placeholder: 'https://x.com/.../status/...'
-  },
-  retweet: {
-    title: 'Submit Retweet',
-    description: 'Paste your retweet link below to confirm you liked & retweeted.',
-    placeholder: 'https://x.com/.../status/...'
-  },
-  comment: {
-    title: 'Submit Comment',
-    description: 'Paste your comment link below to confirm you tagged 3 friends.',
-    placeholder: 'https://x.com/.../status/...'
-  },
+  // ... other configs
   d2_comment: {
     title: 'Submit Day 2 Comment',
-    description: 'Paste your Day 2 comment link below to confirm you tagged 3 friends.',
+    // Change this line:
+    description: 'Paste your Day 2 comment link below to confirm your entry.', 
     placeholder: 'https://x.com/.../status/...'
   }
 };
