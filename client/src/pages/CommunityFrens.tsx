@@ -56,8 +56,8 @@ const parseCSV = (text: string): Set<string> => {
 /* ------------------------------------------------------------------ */
 
 export default function CommunityFrens() {
-  const [claims, setClaims] = useState<<Record<string, number>({});
-  const [csvSet, setCsvSet] = useState<<Set<string> | null>(null);
+  const [claims, setClaims] = useState<Record<string, number>>({});
+  const [csvSet, setCsvSet] = useState<Set<string> | null>(null);
   const [csvLoading, setCsvLoading] = useState(true);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -361,4 +361,3 @@ export default function CommunityFrens() {
     </GameLayout>
   );
 }
-
