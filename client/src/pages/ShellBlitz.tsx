@@ -16,7 +16,7 @@ const DAY2_TWEET_URL = 'https://x.com/i/status/2054532518871703555';
 const GARY_URL = 'https://x.com/garythecleaner1?s=21';
 const SHELLS_PER_ITEM = 1500;
 const MAX_ITEMS = 3;
-const BOX_COOLDOWN_MS = 3 * 60 * 60 * 1000;
+const BOX_COOLDOWN_MS = 3 * 60 * 1000;
 const DAY2_UNLOCK_MS = 24 * 60 * 60 * 1000;
 const QUEST_TIMER_SECONDS = 30;
 
