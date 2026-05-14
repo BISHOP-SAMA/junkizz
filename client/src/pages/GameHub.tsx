@@ -47,13 +47,13 @@ const PAGES = [
     id: 'community-frens',
     path: '/frens',
     label: 'Communities',
-    sub: 'Coming Season 1',
+    sub: 'now live',
     color: '#EF476F',
     shadow: '#b0244e',
     glow: 'rgba(239,71,111,0.25)',
     emoji: '👥',
     image: ASSETS.slogfrens,        // ← NEW IMAGE
-    live: false,
+    live: true,
   },
     {
     id: 'gallery',
