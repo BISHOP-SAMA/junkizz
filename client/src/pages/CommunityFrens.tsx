@@ -7,22 +7,21 @@ type Community = {
   id: string;
   name: string;
   image: string;
-  color: string;
 };
 
 const COMMUNITIES: Community[] = [
-  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg',       color: '#EF476F' },
-  { id: 'froge-69mg',      name: 'FROGE 69mg',      image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg',      color: '#06D6A0' },
-  { id: 'funkari',         name: 'Funkari',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg',         color: '#FFD166' },
-  { id: 'fwogs',           name: 'Fwogs',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg',           color: '#118AB2' },
-  { id: 'giraffes',        name: 'Giraffes',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg',       color: '#073B4C' },
-  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg',         color: '#9D4EDD' },
-  { id: 'normies',         name: 'Normies',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg',         color: '#FF9F1C' },
-  { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg',        color: '#2EC4B6' },
-  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg',          color: '#E71D36' },
-  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg', color: '#662E9B' },
-  { id: 'theorem',         name: 'Theorem',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Theorem.jpg',         color: '#F86624' },
-  { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg',           color: '#43AA8B' },
+  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg' },
+  { id: 'froge-69mg',      name: 'FROGE 69mg',      image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg' },
+  { id: 'funkari',         name: 'Funkari',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg' },
+  { id: 'fwogs',           name: 'Fwogs',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg' },
+  { id: 'giraffes',        name: 'Giraffes',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg' },
+  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg' },
+  { id: 'normies',         name: 'Normies',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg' },
+  { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg' },
+  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg' },
+  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg' },
+  { id: 'theorem',         name: 'Theorem',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Theorem.jpg' },
+  { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg' },
 ];
 
 const TOTAL_SPOTS = 300;
@@ -49,8 +48,8 @@ export default function CommunityFrens() {
   const [csvLoading, setCsvLoading] = useState(true);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [active, setActive] = useState<Community | null>(null);
   const [input, setInput] = useState('');
+  const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'checking' | 'ineligible' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -74,7 +73,7 @@ export default function CommunityFrens() {
   }, [fetchCounts]);
 
   const handleClaim = async () => {
-    if (!active || !csvSet) return;
+    if (!csvSet || !selectedCommunity) return;
     const addr = input.trim().toLowerCase();
 
     if (!isValidAddress(addr)) {
@@ -92,7 +91,6 @@ export default function CommunityFrens() {
       return;
     }
 
-    // Check if wallet already claimed anything at all
     const { data: existing } = await supabase
       .from('community_claims')
       .select('id')
@@ -105,7 +103,6 @@ export default function CommunityFrens() {
       return;
     }
 
-    // Check global spots not exceeded
     if (totalClaimed >= TOTAL_SPOTS) {
       setStatus('error');
       setErrorMsg('All 300 spots have been claimed.');
@@ -115,7 +112,7 @@ export default function CommunityFrens() {
     setStatus('submitting');
     const { error } = await supabase
       .from('community_claims')
-      .insert({ community_id: active.id, wallet_address: addr });
+      .insert({ community_id: selectedCommunity, wallet_address: addr });
 
     if (error) {
       setStatus('error');
@@ -127,17 +124,16 @@ export default function CommunityFrens() {
     setTotalClaimed((p) => p + 1);
   };
 
-  const open = (c: Community) => {
-    setActive(c);
+  const openModal = () => {
     setInput('');
     setStatus('idle');
     setErrorMsg('');
+    setSelectedCommunity(null);
     setModalOpen(true);
   };
 
   const close = () => {
     setModalOpen(false);
-    setTimeout(() => setActive(null), 250);
   };
 
   const globalFull = totalClaimed >= TOTAL_SPOTS;
@@ -145,28 +141,30 @@ export default function CommunityFrens() {
 
   return (
     <GameLayout pageId="community-frens" label="Community Frens" color="#EF476F">
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto px-4 py-8">
+
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-6"
+          className="text-center mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-black text-[#1a1a2e] mb-3" style={{ fontFamily: 'Georgia, serif' }}>
+          <h1 className="text-3xl md:text-4xl font-black text-[#1a1a2e] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
             Community Frens
           </h1>
           <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-            300 spots total. First come first served — one claim per wallet.
+            Are you a holder of one of our partner communities?
           </p>
 
-          {/* Global progress bar */}
-          <div className="max-w-sm mx-auto">
+          {/* Global progress */}
+          <div className="max-w-xs mx-auto mb-2">
             <div className="flex justify-between text-xs font-bold text-gray-500 mb-1.5">
               <span>{totalClaimed} / {TOTAL_SPOTS} claimed</span>
               <span className={globalFull ? 'text-red-500' : 'text-green-600'}>
                 {globalFull ? 'Full' : `${TOTAL_SPOTS - totalClaimed} left`}
               </span>
             </div>
-            <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
+            <div className="h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
               <motion.div
                 className="h-full rounded-full bg-[#EF476F]"
                 initial={{ width: 0 }}
@@ -177,54 +175,57 @@ export default function CommunityFrens() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-8">
+        {/* Community grid — display only */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-4 gap-3 mb-8"
+        >
           {COMMUNITIES.map((c, i) => (
             <motion.div
               key={c.id}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04, duration: 0.35 }}
-              className="relative group rounded-3xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-shadow"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.04 }}
+              className="flex flex-col items-center gap-1.5"
             >
-              <div className="relative h-44 overflow-hidden">
+              <div className="w-full aspect-square rounded-2xl overflow-hidden border-2 border-gray-100 shadow-sm">
                 <img
                   src={c.image}
                   alt={c.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
-                <div
-                  className="absolute inset-0 opacity-25"
-                  style={{ background: `linear-gradient(to top, ${c.color}, transparent)` }}
-                />
-                <div className="absolute bottom-3 left-3">
-                  <span
-                    className="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black text-white uppercase tracking-wider"
-                    style={{ background: c.color }}
-                  >
-                    {c.name}
-                  </span>
-                </div>
               </div>
-
-              <div className="p-4">
-                <button
-                  onClick={() => open(c)}
-                  disabled={globalFull || csvLoading}
-                  className={`w-full py-2.5 rounded-xl text-sm font-black text-white transition-transform active:scale-95 ${
-                    globalFull || csvLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110'
-                  }`}
-                  style={{ background: c.color }}
-                >
-                  {csvLoading ? 'Loading…' : globalFull ? 'Sold Out' : 'Claim Spot'}
-                </button>
-              </div>
+              <span className="text-[10px] font-bold text-gray-500 text-center leading-tight">
+                {c.name}
+              </span>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* Single claim button */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <button
+            onClick={openModal}
+            disabled={globalFull || csvLoading}
+            className={`w-full py-4 rounded-2xl text-base font-black text-white transition-transform active:scale-95 shadow-lg ${
+              globalFull || csvLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110'
+            }`}
+            style={{ background: '#EF476F' }}
+          >
+            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : '🎉 Claim My Spot'}
+          </button>
+        </motion.div>
       </div>
 
+      {/* Modal */}
       <AnimatePresence>
-        {modalOpen && active && (
+        {modalOpen && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center px-4"
             initial={{ opacity: 0 }}
@@ -239,20 +240,11 @@ export default function CommunityFrens() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
             >
-              <div className="h-28 flex items-end p-5" style={{ background: active.color }}>
-                <div className="flex items-center gap-3">
-                  <img
-                    src={active.image}
-                    alt=""
-                    className="w-14 h-14 rounded-xl object-cover border-2 border-white shadow-md"
-                  />
-                  <div>
-                    <h3 className="text-white font-black text-xl leading-tight">{active.name}</h3>
-                    <p className="text-white/80 text-xs font-bold">
-                      {totalClaimed} / {TOTAL_SPOTS} total claimed
-                    </p>
-                  </div>
-                </div>
+              {/* Modal header */}
+              <div className="h-24 flex items-center justify-center px-6" style={{ background: '#EF476F' }}>
+                <h3 className="text-white font-black text-2xl" style={{ fontFamily: 'Georgia, serif' }}>
+                  Claim Your Spot
+                </h3>
                 <button
                   onClick={close}
                   className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-sm font-bold transition"
@@ -273,18 +265,46 @@ export default function CommunityFrens() {
                     </div>
                     <h4 className="text-lg font-black text-[#1a1a2e] mb-1">Spot Claimed!</h4>
                     <p className="text-sm text-gray-500 mb-5">
-                      Your address is locked in for <strong>{active.name}</strong>.
+                      Your wallet is locked in. Welcome, fren!
                     </p>
                     <button
                       onClick={close}
                       className="px-6 py-2.5 rounded-xl text-sm font-black text-white"
-                      style={{ background: active.color }}
+                      style={{ background: '#EF476F' }}
                     >
                       Close
                     </button>
                   </motion.div>
                 ) : (
                   <>
+                    {/* Pick community */}
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">
+                      Select Your Community
+                    </p>
+                    <div className="grid grid-cols-4 gap-2 mb-5">
+                      {COMMUNITIES.map((c) => (
+                        <button
+                          key={c.id}
+                          onClick={() => setSelectedCommunity(c.id)}
+                          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl border-2 transition-all ${
+                            selectedCommunity === c.id
+                              ? 'border-[#EF476F] scale-105 shadow-md'
+                              : 'border-transparent hover:border-gray-200'
+                          }`}
+                        >
+                          <img
+                            src={c.image}
+                            alt={c.name}
+                            className="w-full aspect-square rounded-lg object-cover"
+                          />
+                          <span className="text-[9px] font-bold text-gray-500 text-center leading-tight">
+                            {c.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Wallet input */}
                     <label className="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">
                       Paste Wallet Address
                     </label>
@@ -300,8 +320,7 @@ export default function CommunityFrens() {
                       }}
                       placeholder="0x..."
                       disabled={status === 'submitting'}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm font-mono text-[#1a1a2e] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
-                      style={{ '--tw-ring-color': active.color } as React.CSSProperties}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm font-mono text-[#1a1a2e] placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#EF476F] focus:ring-offset-2 transition"
                     />
 
                     <AnimatePresence>
@@ -319,15 +338,15 @@ export default function CommunityFrens() {
 
                     <button
                       onClick={handleClaim}
-                      disabled={!input || status === 'checking' || status === 'submitting'}
+                      disabled={!input || !selectedCommunity || status === 'checking' || status === 'submitting'}
                       className="w-full mt-4 py-3 rounded-xl text-sm font-black text-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110"
-                      style={{ background: active.color }}
+                      style={{ background: '#EF476F' }}
                     >
                       {status === 'checking' ? 'Checking…' : status === 'submitting' ? 'Claiming…' : 'Claim My Spot'}
                     </button>
 
                     <p className="text-[11px] text-gray-400 text-center mt-3 leading-relaxed">
-                      Address must exist in the published CSV whitelist to qualify.
+                      One claim per wallet. Must be on the eligibility list.
                     </p>
                   </>
                 )}
