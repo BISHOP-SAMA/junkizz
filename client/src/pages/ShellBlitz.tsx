@@ -511,9 +511,9 @@ export default function ShellBlitz() {
   const [items, setItems] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
   const [activeSubmissionQuest, setActiveSubmissionQuest] = useState<string | null>(null);
-  const [pendingQuests, setPendingQuests] = useState<<Set<string>>(new Set());
+  const [pendingQuests, setPendingQuests] = useState<Set<string>>(new Set());
 
-  const [quests, setQuests] = useState<<Quest[]>([
+  const [quests, setQuests] = useState<Quest[]>([
     // Day 3 — Slogz Blitz Whitelist Campaign (open to all)
     { id: 'd3_claim_free', icon: '🎁', label: 'Claim Free 2,000 Shells', points: 0, shells: 2000, done: false, day: 3 },
     { id: 'd3_retweet', icon: '🔁', label: 'Like & Retweet', points: 200, shells: 1000, done: false, url: DAY3_TWEET_URL, day: 3, requiresSubmission: true },
