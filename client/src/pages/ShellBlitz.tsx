@@ -10,7 +10,7 @@ import ArtUploadModal from '../components/ArtUploadModal';
 
 type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number; oneTime?: boolean; requiresSubmission?: boolean };
 
-const DAY3_TWEET_URL = 'https://x.com/PlanetSlog/status/2054909673984205272';
+const DAY3_TWEET_URL = 'https://x.com/PlanetSlog/status/2054927566658535841?s=20';
 const SHELLS_PER_ITEM = 1500;
 const MAX_ITEMS = 3;
 const BOX_COOLDOWN_MS = 15 * 60 * 1000;
