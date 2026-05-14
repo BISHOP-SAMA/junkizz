@@ -10,14 +10,10 @@ import ArtUploadModal from '../components/ArtUploadModal';
 
 type Quest = { id: string; icon: string; label: string; points: number; shells: number; done: boolean; url?: string; day: number; oneTime?: boolean; requiresSubmission?: boolean };
 
-const PLANETSLOG_URL = 'https://x.com/planetslog?s=21';
-const TWEET_URL = 'https://x.com/planetslog/status/2054200732283256900?s=46';
-const DAY2_TWEET_URL = 'https://x.com/i/status/2054532518871703555';
-const GARY_URL = 'https://x.com/garythecleaner1?s=21';
+const DAY3_TWEET_URL = 'https://x.com/PlanetSlog/status/2054909673984205272';
 const SHELLS_PER_ITEM = 1500;
 const MAX_ITEMS = 3;
 const BOX_COOLDOWN_MS = 15 * 60 * 1000;
-const DAY2_UNLOCK_MS = 24 * 60 * 60 * 1000;
 const QUEST_TIMER_SECONDS = 30;
 
 const DAILY_REWARDS = [
@@ -31,11 +27,19 @@ const DAILY_REWARDS = [
 ];
 
 const SUBMISSION_CONFIG: Record<string, { title: string; description: string; placeholder: string }> = {
-  // ... other configs
-  d2_comment: {
-    title: 'Submit Day 2 Verification',
-    // Updated description below:
+  d3_retweet: {
+    title: 'Submit Day 3 Verification',
     description: 'Paste your profile or interaction link below to confirm you Liked & Retweeted.',
+    placeholder: 'https://x.com/.../status/...'
+  },
+  d3_comment: {
+    title: 'Submit Day 3 Verification',
+    description: 'Paste your profile or interaction link below to confirm you Commented & Tagged a Fellow Slog.',
+    placeholder: 'https://x.com/.../status/...'
+  },
+  write_about: {
+    title: 'Submit Post Verification',
+    description: 'Paste a link to your post about Shell Blitz.',
     placeholder: 'https://x.com/.../status/...'
   }
 };
@@ -507,40 +511,20 @@ export default function ShellBlitz() {
   const [items, setItems] = useState(0);
   const [showArtModal, setShowArtModal] = useState(false);
   const [activeSubmissionQuest, setActiveSubmissionQuest] = useState<string | null>(null);
-  const [pendingQuests, setPendingQuests] = useState<Set<string>>(new Set());
-  const [day2Unlocked, setDay2Unlocked] = useState(false);
-  const [day2TimeLeft, setDay2TimeLeft] = useState(0);
+  const [pendingQuests, setPendingQuests] = useState<<Set<string>>(new Set());
 
-  const [quests, setQuests] = useState<Quest[]>([
-    { id: 'follow', icon: '🐦', label: 'Follow @planetslog', points: 200, shells: 200, done: false, url: PLANETSLOG_URL, day: 1 },
-    { id: 'retweet', icon: '🔁', label: 'Like & Retweet', points: 150, shells: 150, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
-    { id: 'comment', icon: '💬', label: 'Comment & Tag 3 Frens', points: 250, shells: 250, done: false, url: TWEET_URL, day: 1, requiresSubmission: true },
-    { id: 'follow_gary', icon: '🧹', label: 'Follow @garythecleaner1', points: 300, shells: 600, done: false, url: GARY_URL, day: 2 },
-    { id: 'claim_free_500', icon: '🎁', label: 'Claim Free 500 Shells', points: 0, shells: 500, done: false, day: 2 },
-    { id: 'd2_comment', icon: '💬', label: 'Comment', points: 250, shells: 250, done: false, url: DAY2_TWEET_URL, day: 2, requiresSubmission: true },
+  const [quests, setQuests] = useState<<Quest[]>([
+    // Day 3 — Slogz Blitz Whitelist Campaign (open to all)
+    { id: 'd3_claim_free', icon: '🎁', label: 'Claim Free 2,000 Shells', points: 0, shells: 2000, done: false, day: 3 },
+    { id: 'd3_retweet', icon: '🔁', label: 'Like & Retweet', points: 200, shells: 1000, done: false, url: DAY3_TWEET_URL, day: 3, requiresSubmission: true },
+    { id: 'd3_comment', icon: '💬', label: 'Comment & Tag a Fellow Slog', points: 200, shells: 1000, done: false, url: DAY3_TWEET_URL, day: 3, requiresSubmission: true },
+    // One-time quests
     { id: 'write_about', icon: '✍️', label: 'Make a Short Post About Shell Blitz', points: 500, shells: 1500, done: false, day: 1, oneTime: true, requiresSubmission: true },
     { id: 'submit_art', icon: '🎨', label: 'Submit Your Art', points: 300, shells: 800, done: false, day: 1, oneTime: true },
   ]);
 
   useEffect(() => {
     if (user) { setShells(user.shells_balance); setItems(user.items ?? 0); }
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const key = `day2_unlock_${user.id}`;
-    const saved = localStorage.getItem(key);
-    let unlockTime: number;
-    if (saved) { unlockTime = parseInt(saved, 10); }
-    else { unlockTime = Date.now() + DAY2_UNLOCK_MS; localStorage.setItem(key, unlockTime.toString()); }
-    const updateTimer = () => {
-      const left = unlockTime - Date.now();
-      if (left <= 0) { setDay2Unlocked(true); setDay2TimeLeft(0); }
-      else { setDay2Unlocked(false); setDay2TimeLeft(left); }
-    };
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
   }, [user]);
 
   useEffect(() => {
@@ -604,16 +588,7 @@ export default function ShellBlitz() {
     await addShells(quest.shells);
   };
 
-  const fmtTime = (ms: number) => {
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    return `${h}h ${m.toString().padStart(2, '0')}m ${sec.toString().padStart(2, '0')}s`;
-  };
-
-  const day1Quests = quests.filter(q => q.day === 1 && !q.oneTime);
-  const day2Quests = quests.filter(q => q.day === 2);
+  const day3Quests = quests.filter(q => q.day === 3);
   const oneTimeQuests = quests.filter(q => q.oneTime);
 
   if (!user) return null;
@@ -640,7 +615,7 @@ export default function ShellBlitz() {
         <div className="p-4 rounded-2xl" style={{ background: 'white', border: '1.5px solid rgba(255,107,53,0.12)', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
           <div className="flex items-center gap-2 mb-3">
             <span className="font-black text-sm" style={{ color: '#1a1a2e' }}>Mystery Boxes</span>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>Every 3h</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>Every 15m</span>
           </div>
           <BoxGrid onEarn={n => addShells(n)} userId={user.id} />
         </div>
@@ -651,6 +626,25 @@ export default function ShellBlitz() {
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: '#FFF5EE', color: '#FF6B35' }}>7-Day Streak</span>
           </div>
           <DailyClaimGrid userId={user.id} onClaim={addShells} />
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 3</span>
+            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Slogz Blitz Whitelist Campaign</span>
+          </div>
+          <div className="space-y-2">
+            {day3Quests.map(q => (
+              <QuestItem
+                key={q.id}
+                quest={q}
+                locked={false}
+                onComplete={completeQuest}
+                isPending={pendingQuests.has(q.id)}
+                onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -668,44 +662,6 @@ export default function ShellBlitz() {
                 isPending={pendingQuests.has(q.id)}
                 onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
                 onOpenArt={q.id === 'submit_art' ? () => setShowArtModal(true) : undefined}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-black text-white" style={{ background: '#FF6B35' }}>Day 1</span>
-            <span className="text-xs font-bold" style={{ color: '#aaa' }}>Social Tasks</span>
-          </div>
-          <div className="space-y-2">
-            {day1Quests.map(q => (
-              <QuestItem 
-                key={q.id} 
-                quest={q} 
-                locked={false} 
-                onComplete={completeQuest} 
-                onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <div className="flex items-center gap-2 mb-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-black" style={{ background: day2Unlocked ? '#FF6B35' : '#f0f0f0', color: day2Unlocked ? 'white' : '#bbb' }}>Day 2</span>
-            <span className="text-xs font-bold" style={{ color: day2Unlocked ? '#aaa' : '#ccc' }}>
-              {day2Unlocked ? 'Social Tasks' : `Unlocks in ${fmtTime(day2TimeLeft)}`}
-            </span>
-          </div>
-          <div className="space-y-2">
-            {day2Quests.map(q => (
-              <QuestItem 
-                key={q.id} 
-                quest={q} 
-                locked={!day2Unlocked} 
-                onComplete={completeQuest} 
-                onOpenSubmission={q.requiresSubmission ? (id) => setActiveSubmissionQuest(id) : undefined}
               />
             ))}
           </div>
