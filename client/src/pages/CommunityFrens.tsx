@@ -218,7 +218,7 @@ export default function CommunityFrens() {
             }`}
             style={{ background: '#EF476F' }}
           >
-            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : '🎉 Claim My Spot'}
+            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : 'Claim My Spot'}
           </button>
         </motion.div>
       </div>
@@ -261,7 +261,7 @@ export default function CommunityFrens() {
                     className="text-center py-4"
                   >
                     <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-3xl mx-auto mb-3">
-                      🎉
+                      🐌
                     </div>
                     <h4 className="text-lg font-black text-[#1a1a2e] mb-1">Spot Claimed!</h4>
                     <p className="text-sm text-gray-500 mb-5">
