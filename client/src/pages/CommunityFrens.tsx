@@ -3,10 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import GameLayout from '../components/GameLayout';
 import { supabase } from '../lib/supabase';
 
-/* ------------------------------------------------------------------ */
-/*  Data                                                              */
-/* ------------------------------------------------------------------ */
-
 type Community = {
   id: string;
   name: string;
@@ -15,27 +11,23 @@ type Community = {
 };
 
 const COMMUNITIES: Community[] = [
-  { id: 'delmundos',      name: 'DelMundos',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg',      color: '#EF476F' },
-  { id: 'froge-69mg',     name: 'FROGE 69mg',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg',     color: '#06D6A0' },
-  { id: 'funkari',        name: 'Funkari',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg',        color: '#FFD166' },
-  { id: 'fwogs',          name: 'Fwogs',            image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg',           color: '#118AB2' },
-  { id: 'giraffes',       name: 'Giraffes',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg',       color: '#073B4C' },
-  { id: 'goblynz',        name: 'Goblynz',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg',         color: '#9D4EDD' },
-  { id: 'normies',        name: 'Normies',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg',         color: '#FF9F1C' },
-  { id: 'penguish',       name: 'Penguish',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg',        color: '#2EC4B6' },
-  { id: 'slonks',         name: 'Slonks',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg',          color: '#E71D36' },
-  { id: 'the-florentines',name: 'The Florentines',  image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg', color: '#662E9B' },
-  { id: 'theorem',        name: 'Theorem',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Theorem.jpg',         color: '#F86624' },
-  { id: 'zorgz',          name: 'Zorgz',            image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg',           color: '#43AA8B' },
+  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg',      color: '#EF476F' },
+  { id: 'froge-69mg',      name: 'FROGE 69mg',      image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg',     color: '#06D6A0' },
+  { id: 'funkari',         name: 'Funkari',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg',        color: '#FFD166' },
+  { id: 'fwogs',           name: 'Fwogs',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg',          color: '#118AB2' },
+  { id: 'giraffes',        name: 'Giraffes',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg',      color: '#073B4C' },
+  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg',        color: '#9D4EDD' },
+  { id: 'normies',         name: 'Normies',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg',        color: '#FF9F1C' },
+  { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg',       color: '#2EC4B6' },
+  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg',         color: '#E71D36' },
+  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg',color: '#662E9B' },
+  { id: 'theorem',         name: 'Theorem',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Theorem.jpg',        color: '#F86624' },
+  { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg',          color: '#43AA8B' },
 ];
 
 const TOTAL_SPOTS = 300;
 const CSV_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgKmB-kwiKyh7Xeo-JOmwcmdfNi99LMXCl5_RoypTknt419Io5w84rr41HffgdNOz2pxkTVHXBnqzP/pub?output=csv';
-
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                           */
-/* ------------------------------------------------------------------ */
 
 const isValidAddress = (a: string) => /^0x[a-fA-F0-9]{40}$/.test(a.trim());
 
@@ -51,22 +43,17 @@ const parseCSV = (text: string): Set<string> => {
   return set;
 };
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                         */
-/* ------------------------------------------------------------------ */
-
 export default function CommunityFrens() {
   const [claims, setClaims] = useState<Record<string, number>>({});
   const [csvSet, setCsvSet] = useState<Set<string> | null>(null);
   const [csvLoading, setCsvLoading] = useState(true);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [active, setActive] = useState<<Community | null>(null);
+  const [active, setActive] = useState<Community | null>(null);
   const [input, setInput] = useState('');
   const [status, setStatus] = useState<'idle' | 'checking' | 'ineligible' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  /* ---- Load whitelist ---- */
   useEffect(() => {
     fetch(CSV_URL)
       .then((r) => r.text())
@@ -75,7 +62,6 @@ export default function CommunityFrens() {
       .finally(() => setCsvLoading(false));
   }, []);
 
-  /* ---- Load claim counts ---- */
   const fetchCounts = useCallback(async () => {
     const { data } = await supabase.from('community_claims').select('community_id');
     if (!data) return;
@@ -91,7 +77,6 @@ export default function CommunityFrens() {
     fetchCounts();
   }, [fetchCounts]);
 
-  /* ---- Claim ---- */
   const handleClaim = async () => {
     if (!active || !csvSet) return;
     const addr = input.trim().toLowerCase();
@@ -157,7 +142,6 @@ export default function CommunityFrens() {
   return (
     <GameLayout pageId="community-frens" label="Community Frens" color="#EF476F">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -167,11 +151,10 @@ export default function CommunityFrens() {
             Community Frens
           </h1>
           <p className="text-sm text-gray-500 max-w-md mx-auto">
-            300 spots per community. Paste your wallet to claim if you’re on the list.
+            300 spots per community. Paste your wallet to claim if you're on the list.
           </p>
         </motion.div>
 
-        {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {COMMUNITIES.map((c, i) => {
             const claimed = claims[c.id] || 0;
@@ -185,7 +168,6 @@ export default function CommunityFrens() {
                 transition={{ delay: i * 0.04, duration: 0.35 }}
                 className="relative group rounded-3xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-shadow"
               >
-                {/* Image */}
                 <div className="relative h-44 overflow-hidden">
                   <img
                     src={c.image}
@@ -206,7 +188,6 @@ export default function CommunityFrens() {
                   </div>
                 </div>
 
-                {/* Body */}
                 <div className="p-4">
                   <div className="flex items-center justify-between text-xs font-bold text-gray-500 mb-1.5">
                     <span>{claimed} / {TOTAL_SPOTS} claimed</span>
@@ -242,7 +223,6 @@ export default function CommunityFrens() {
         </div>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {modalOpen && active && (
           <motion.div
@@ -259,7 +239,6 @@ export default function CommunityFrens() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
             >
-              {/* Header */}
               <div className="h-28 flex items-end p-5" style={{ background: active.color }}>
                 <div className="flex items-center gap-3">
                   <img
@@ -282,7 +261,6 @@ export default function CommunityFrens() {
                 </button>
               </div>
 
-              {/* Body */}
               <div className="p-6">
                 {status === 'success' ? (
                   <motion.div
