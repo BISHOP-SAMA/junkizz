@@ -11,18 +11,18 @@ type Community = {
 };
 
 const COMMUNITIES: Community[] = [
-  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg',      color: '#EF476F' },
-  { id: 'froge-69mg',      name: 'FROGE 69mg',      image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg',     color: '#06D6A0' },
-  { id: 'funkari',         name: 'Funkari',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg',        color: '#FFD166' },
-  { id: 'fwogs',           name: 'Fwogs',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg',          color: '#118AB2' },
-  { id: 'giraffes',        name: 'Giraffes',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg',      color: '#073B4C' },
-  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg',        color: '#9D4EDD' },
-  { id: 'normies',         name: 'Normies',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg',        color: '#FF9F1C' },
-  { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg',       color: '#2EC4B6' },
-  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg',         color: '#E71D36' },
-  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg',color: '#662E9B' },
-  { id: 'theorem',         name: 'Theorem',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Theorem.jpg',        color: '#F86624' },
-  { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg',          color: '#43AA8B' },
+  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg',       color: '#EF476F' },
+  { id: 'froge-69mg',      name: 'FROGE 69mg',      image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg',      color: '#06D6A0' },
+  { id: 'funkari',         name: 'Funkari',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg',         color: '#FFD166' },
+  { id: 'fwogs',           name: 'Fwogs',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg',           color: '#118AB2' },
+  { id: 'giraffes',        name: 'Giraffes',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg',       color: '#073B4C' },
+  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg',         color: '#9D4EDD' },
+  { id: 'normies',         name: 'Normies',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg',         color: '#FF9F1C' },
+  { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg',        color: '#2EC4B6' },
+  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg',          color: '#E71D36' },
+  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg', color: '#662E9B' },
+  { id: 'theorem',         name: 'Theorem',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Theorem.jpg',         color: '#F86624' },
+  { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg',           color: '#43AA8B' },
 ];
 
 const TOTAL_SPOTS = 300;
@@ -44,7 +44,7 @@ const parseCSV = (text: string): Set<string> => {
 };
 
 export default function CommunityFrens() {
-  const [claims, setClaims] = useState<Record<string, number>>({});
+  const [totalClaimed, setTotalClaimed] = useState(0);
   const [csvSet, setCsvSet] = useState<Set<string> | null>(null);
   const [csvLoading, setCsvLoading] = useState(true);
 
@@ -63,14 +63,10 @@ export default function CommunityFrens() {
   }, []);
 
   const fetchCounts = useCallback(async () => {
-    const { data } = await supabase.from('community_claims').select('community_id');
-    if (!data) return;
-    const counts: Record<string, number> = {};
-    for (const c of COMMUNITIES) counts[c.id] = 0;
-    for (const row of data) {
-      if (counts[row.community_id] !== undefined) counts[row.community_id]++;
-    }
-    setClaims(counts);
+    const { count } = await supabase
+      .from('community_claims')
+      .select('*', { count: 'exact', head: true });
+    setTotalClaimed(count ?? 0);
   }, []);
 
   useEffect(() => {
@@ -96,16 +92,23 @@ export default function CommunityFrens() {
       return;
     }
 
+    // Check if wallet already claimed anything at all
     const { data: existing } = await supabase
       .from('community_claims')
       .select('id')
-      .eq('community_id', active.id)
       .eq('wallet_address', addr)
       .maybeSingle();
 
     if (existing) {
       setStatus('error');
-      setErrorMsg('You already claimed this community.');
+      setErrorMsg('This wallet has already claimed a spot.');
+      return;
+    }
+
+    // Check global spots not exceeded
+    if (totalClaimed >= TOTAL_SPOTS) {
+      setStatus('error');
+      setErrorMsg('All 300 spots have been claimed.');
       return;
     }
 
@@ -121,7 +124,7 @@ export default function CommunityFrens() {
     }
 
     setStatus('success');
-    setClaims((p) => ({ ...p, [active.id]: (p[active.id] || 0) + 1 }));
+    setTotalClaimed((p) => p + 1);
   };
 
   const open = (c: Community) => {
@@ -137,7 +140,8 @@ export default function CommunityFrens() {
     setTimeout(() => setActive(null), 250);
   };
 
-  const pct = (id: string) => Math.min(100, ((claims[id] || 0) / TOTAL_SPOTS) * 100);
+  const globalFull = totalClaimed >= TOTAL_SPOTS;
+  const pct = Math.min(100, (totalClaimed / TOTAL_SPOTS) * 100);
 
   return (
     <GameLayout pageId="community-frens" label="Community Frens" color="#EF476F">
@@ -145,81 +149,77 @@ export default function CommunityFrens() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
+          className="text-center mb-6"
         >
           <h1 className="text-3xl md:text-4xl font-black text-[#1a1a2e] mb-3" style={{ fontFamily: 'Georgia, serif' }}>
             Community Frens
           </h1>
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
-            300 spots per community. Paste your wallet to claim if you're on the list.
+          <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
+            300 spots total. First come first served — one claim per wallet.
           </p>
+
+          {/* Global progress bar */}
+          <div className="max-w-sm mx-auto">
+            <div className="flex justify-between text-xs font-bold text-gray-500 mb-1.5">
+              <span>{totalClaimed} / {TOTAL_SPOTS} claimed</span>
+              <span className={globalFull ? 'text-red-500' : 'text-green-600'}>
+                {globalFull ? 'Full' : `${TOTAL_SPOTS - totalClaimed} left`}
+              </span>
+            </div>
+            <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-[#EF476F]"
+                initial={{ width: 0 }}
+                animate={{ width: `${pct}%` }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+          </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {COMMUNITIES.map((c, i) => {
-            const claimed = claims[c.id] || 0;
-            const full = claimed >= TOTAL_SPOTS;
-
-            return (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04, duration: 0.35 }}
-                className="relative group rounded-3xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-shadow"
-              >
-                <div className="relative h-44 overflow-hidden">
-                  <img
-                    src={c.image}
-                    alt={c.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div
-                    className="absolute inset-0 opacity-25"
-                    style={{ background: `linear-gradient(to top, ${c.color}, transparent)` }}
-                  />
-                  <div className="absolute bottom-3 left-3">
-                    <span
-                      className="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black text-white uppercase tracking-wider"
-                      style={{ background: c.color }}
-                    >
-                      {c.name}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-4">
-                  <div className="flex items-center justify-between text-xs font-bold text-gray-500 mb-1.5">
-                    <span>{claimed} / {TOTAL_SPOTS} claimed</span>
-                    <span className={full ? 'text-red-500' : 'text-green-600'}>
-                      {full ? 'Full' : `${TOTAL_SPOTS - claimed} left`}
-                    </span>
-                  </div>
-
-                  <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden mb-4">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ background: c.color }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct(c.id)}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                    />
-                  </div>
-
-                  <button
-                    onClick={() => open(c)}
-                    disabled={full || csvLoading}
-                    className={`w-full py-2.5 rounded-xl text-sm font-black text-white transition-transform active:scale-95 ${
-                      full || csvLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110'
-                    }`}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-8">
+          {COMMUNITIES.map((c, i) => (
+            <motion.div
+              key={c.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, duration: 0.35 }}
+              className="relative group rounded-3xl bg-white border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-shadow"
+            >
+              <div className="relative h-44 overflow-hidden">
+                <img
+                  src={c.image}
+                  alt={c.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div
+                  className="absolute inset-0 opacity-25"
+                  style={{ background: `linear-gradient(to top, ${c.color}, transparent)` }}
+                />
+                <div className="absolute bottom-3 left-3">
+                  <span
+                    className="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black text-white uppercase tracking-wider"
                     style={{ background: c.color }}
                   >
-                    {csvLoading ? 'Loading…' : full ? 'Sold Out' : 'Claim Spot'}
-                  </button>
+                    {c.name}
+                  </span>
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+
+              <div className="p-4">
+                <button
+                  onClick={() => open(c)}
+                  disabled={globalFull || csvLoading}
+                  className={`w-full py-2.5 rounded-xl text-sm font-black text-white transition-transform active:scale-95 ${
+                    globalFull || csvLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110'
+                  }`}
+                  style={{ background: c.color }}
+                >
+                  {csvLoading ? 'Loading…' : globalFull ? 'Sold Out' : 'Claim Spot'}
+                </button>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
 
@@ -249,7 +249,7 @@ export default function CommunityFrens() {
                   <div>
                     <h3 className="text-white font-black text-xl leading-tight">{active.name}</h3>
                     <p className="text-white/80 text-xs font-bold">
-                      {claims[active.id] || 0} / {TOTAL_SPOTS} claimed
+                      {totalClaimed} / {TOTAL_SPOTS} total claimed
                     </p>
                   </div>
                 </div>
