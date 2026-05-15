@@ -10,6 +10,7 @@ export const ASSETS = {
   chestClosed:   `${BASE}/slogchest-closed.png`,
   chestOpen:     `${BASE}/slogchest-open.png`,
   logo:          `${BASE}/slog-logo.png`,
+  mfx:           `${BASE}/Communities/MFX::2026X.AVIF`,
   airdrop:       `${BASE}/airdrop.png`,
   airdropChest:  `${BASE}/airdrop-chest.png`,
 };
