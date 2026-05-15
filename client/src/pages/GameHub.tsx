@@ -41,7 +41,7 @@ const PAGES = [
     glow: 'rgba(239,71,111,0.25)',
     emoji: '👥',
     image: ASSETS.slogfrens,
-    live: false,
+    live: true,
   },
   {
     id: 'slog-race',
