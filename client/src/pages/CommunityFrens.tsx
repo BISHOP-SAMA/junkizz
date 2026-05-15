@@ -140,7 +140,7 @@ export default function CommunityFrens() {
   const pct = Math.min(100, (totalClaimed / TOTAL_SPOTS) * 100);
 
   return (
-    <GameLayout pageId="community-frens" label="Community Frens" color="#EF476F">
+    <GameLayout pageId="community-frens" label="Communities" color="#EF476F">
       <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Header */}
@@ -150,10 +150,10 @@ export default function CommunityFrens() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-black text-[#1a1a2e] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
-            Community Frens
+            Community stand
           </h1>
           <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-            Are you a holder of one of our partner communities?
+            Are you a holder of these communities?
           </p>
 
           {/* Global progress */}
