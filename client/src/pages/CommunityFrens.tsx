@@ -214,7 +214,7 @@ export default function CommunityFrens() {
             }`}
             style={{ background: '#EF476F' }}
           >
-            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : '🎉 Claim My Spot'}
+            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : 'Claim My Spot'}
           </button>
         </motion.div>
       </div>
@@ -255,7 +255,7 @@ export default function CommunityFrens() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-4"
                   >
-                    <div className="text-5xl mb-3">🎉</div>
+                    <div className="text-5xl mb-3">🐌</div>
                     <h4 className="text-lg font-black text-[#1a1a2e] mb-1">Spot Claimed!</h4>
                     <p className="text-sm text-gray-500 mb-5">
                       Your wallet is locked in. Welcome, fren!
