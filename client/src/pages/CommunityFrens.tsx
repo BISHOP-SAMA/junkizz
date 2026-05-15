@@ -20,7 +20,7 @@ const COMMUNITIES: Community[] = [
   { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg' },
   { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg' },
   { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg' },
-  { id: 'mfx::2026x.avif', name: 'MFX 2026X',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/MFX::2026X.AVIF' },
+  { id: 'mfx-2026x',       name: 'MFX 2026X',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/MFX2026X.AVIF' },
   { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg' },
 ];
 
@@ -49,7 +49,6 @@ export default function CommunityFrens() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [selectedCommunity, setSelectedCommunity] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'checking' | 'ineligible' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -73,12 +72,12 @@ export default function CommunityFrens() {
   }, [fetchCounts]);
 
   const handleClaim = async () => {
-    if (!csvSet || !selectedCommunity) return;
+    if (!csvSet) return;
     const addr = input.trim().toLowerCase();
 
     if (!isValidAddress(addr)) {
       setStatus('error');
-      setErrorMsg('Invalid address format.');
+      setErrorMsg('Invalid wallet address format.');
       return;
     }
 
@@ -87,7 +86,7 @@ export default function CommunityFrens() {
 
     if (!csvSet.has(addr)) {
       setStatus('ineligible');
-      setErrorMsg('Address not on the eligibility list.');
+      setErrorMsg('This wallet is not on the eligibility list.');
       return;
     }
 
@@ -112,7 +111,7 @@ export default function CommunityFrens() {
     setStatus('submitting');
     const { error } = await supabase
       .from('community_claims')
-      .insert({ community_id: selectedCommunity, wallet_address: addr });
+      .insert({ community_id: 'general', wallet_address: addr });
 
     if (error) {
       setStatus('error');
@@ -128,19 +127,20 @@ export default function CommunityFrens() {
     setInput('');
     setStatus('idle');
     setErrorMsg('');
-    setSelectedCommunity(null);
     setModalOpen(true);
   };
 
   const close = () => {
     setModalOpen(false);
+    setStatus('idle');
+    setErrorMsg('');
   };
 
   const globalFull = totalClaimed >= TOTAL_SPOTS;
   const pct = Math.min(100, (totalClaimed / TOTAL_SPOTS) * 100);
 
   return (
-    <GameLayout pageId="community-frens" label="Communities" color="#EF476F">
+    <GameLayout pageId="community-frens" label="Community Frens" color="#EF476F">
       <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Header */}
@@ -150,14 +150,14 @@ export default function CommunityFrens() {
           className="text-center mb-8"
         >
           <h1 className="text-3xl md:text-4xl font-black text-[#1a1a2e] mb-2" style={{ fontFamily: 'Georgia, serif' }}>
-            Community Stand
+            Community Frens
           </h1>
           <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-            Are you a holder of these communities?
+            Are you a holder of one of our partner communities?
           </p>
 
           {/* Global progress */}
-          <div className="max-w-xs mx-auto mb-2">
+          <div className="max-w-xs mx-auto">
             <div className="flex justify-between text-xs font-bold text-gray-500 mb-1.5">
               <span>{totalClaimed} / {TOTAL_SPOTS} claimed</span>
               <span className={globalFull ? 'text-red-500' : 'text-green-600'}>
@@ -175,7 +175,7 @@ export default function CommunityFrens() {
           </div>
         </motion.div>
 
-        {/* Community grid — display only */}
+        {/* Community grid */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,11 +191,7 @@ export default function CommunityFrens() {
               className="flex flex-col items-center gap-1.5"
             >
               <div className="w-full aspect-square rounded-2xl overflow-hidden border-2 border-gray-100 shadow-sm">
-                <img
-                  src={c.image}
-                  alt={c.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
               </div>
               <span className="text-[10px] font-bold text-gray-500 text-center leading-tight">
                 {c.name}
@@ -204,7 +200,7 @@ export default function CommunityFrens() {
           ))}
         </motion.div>
 
-        {/* Single claim button */}
+        {/* Claim button */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -218,7 +214,7 @@ export default function CommunityFrens() {
             }`}
             style={{ background: '#EF476F' }}
           >
-            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : 'Claim My Spot'}
+            {csvLoading ? 'Loading…' : globalFull ? '🔒 All Spots Claimed' : '🎉 Claim My Spot'}
           </button>
         </motion.div>
       </div>
@@ -240,7 +236,6 @@ export default function CommunityFrens() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
             >
-              {/* Modal header */}
               <div className="h-24 flex items-center justify-center px-6" style={{ background: '#EF476F' }}>
                 <h3 className="text-white font-black text-2xl" style={{ fontFamily: 'Georgia, serif' }}>
                   Claim Your Spot
@@ -260,9 +255,7 @@ export default function CommunityFrens() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="text-center py-4"
                   >
-                    <div className="w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-3xl mx-auto mb-3">
-                      🐌
-                    </div>
+                    <div className="text-5xl mb-3">🎉</div>
                     <h4 className="text-lg font-black text-[#1a1a2e] mb-1">Spot Claimed!</h4>
                     <p className="text-sm text-gray-500 mb-5">
                       Your wallet is locked in. Welcome, fren!
@@ -277,34 +270,6 @@ export default function CommunityFrens() {
                   </motion.div>
                 ) : (
                   <>
-                    {/* Pick community */}
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">
-                      Select Your Community
-                    </p>
-                    <div className="grid grid-cols-4 gap-2 mb-5">
-                      {COMMUNITIES.map((c) => (
-                        <button
-                          key={c.id}
-                          onClick={() => setSelectedCommunity(c.id)}
-                          className={`flex flex-col items-center gap-1 p-1.5 rounded-xl border-2 transition-all ${
-                            selectedCommunity === c.id
-                              ? 'border-[#EF476F] scale-105 shadow-md'
-                              : 'border-transparent hover:border-gray-200'
-                          }`}
-                        >
-                          <img
-                            src={c.image}
-                            alt={c.name}
-                            className="w-full aspect-square rounded-lg object-cover"
-                          />
-                          <span className="text-[9px] font-bold text-gray-500 text-center leading-tight">
-                            {c.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Wallet input */}
                     <label className="block text-xs font-black text-gray-400 uppercase tracking-wider mb-2">
                       Paste Wallet Address
                     </label>
@@ -338,11 +303,11 @@ export default function CommunityFrens() {
 
                     <button
                       onClick={handleClaim}
-                      disabled={!input || !selectedCommunity || status === 'checking' || status === 'submitting'}
+                      disabled={!input.trim() || status === 'checking' || status === 'submitting'}
                       className="w-full mt-4 py-3 rounded-xl text-sm font-black text-white transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110"
                       style={{ background: '#EF476F' }}
                     >
-                      {status === 'checking' ? 'Checking…' : status === 'submitting' ? 'Claiming…' : 'Claim My Spot'}
+                      {status === 'checking' ? 'Checking…' : status === 'submitting' ? 'Claiming…' : 'Submit'}
                     </button>
 
                     <p className="text-[11px] text-gray-400 text-center mt-3 leading-relaxed">
