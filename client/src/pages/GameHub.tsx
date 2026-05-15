@@ -32,6 +32,18 @@ const PAGES = [
     live: true,
   },
   {
+    id: 'community-frens',
+    path: '/frens',
+    label: 'Communities',
+    sub: 'now live',
+    color: '#EF476F',
+    shadow: '#b0244e',
+    glow: 'rgba(239,71,111,0.25)',
+    emoji: '👥',
+    image: ASSETS.slogfrens,
+    live: false,
+  },
+  {
     id: 'slog-race',
     path: '/race',
     label: 'Slog Race',
@@ -42,18 +54,6 @@ const PAGES = [
     emoji: '🏁',
     image: ASSETS.slograce,
     live: false,
-  },
-  {
-    id: 'community-frens',
-    path: '/frens',
-    label: 'Communities',
-    sub: 'now live',
-    color: '#EF476F',
-    shadow: '#b0244e',
-    glow: 'rgba(239,71,111,0.25)',
-    emoji: '👥',
-    image: ASSETS.slogfrens,        // ← NEW IMAGE
-    live: true,
   },
     {
     id: 'gallery',
