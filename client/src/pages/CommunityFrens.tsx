@@ -140,7 +140,7 @@ export default function CommunityFrens() {
   const pct = Math.min(100, (totalClaimed / TOTAL_SPOTS) * 100);
 
   return (
-    <GameLayout pageId="community-frens" label="Community Frens" color="#EF476F">
+    <GameLayout pageId="community-frens" label="Communities" color="#EF476F">
       <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Header */}
