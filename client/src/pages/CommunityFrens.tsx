@@ -10,23 +10,16 @@ type Community = {
 };
 
 const COMMUNITIES: Community[] = [
-  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg' },
-  { id: 'froge-69mg',      name: 'FROGE 69mg',      image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/FROGE69mg.jpg' },
-  { id: 'funkari',         name: 'Funkari',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Funkari.jpg' },
-  { id: 'fwogs',           name: 'Fwogs',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Fwogs.jpg' },
-  { id: 'giraffes',        name: 'Giraffes',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Giraffies.jpg' },
-  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg' },
-  { id: 'normies',         name: 'Normies',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Normies.jpg' },
-  { id: 'penguish',        name: 'Penguish',        image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Penguish.jpg' },
-  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg' },
-  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg' },
-  { id: 'mfx-2026x',       name: 'MFX 2026X',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/MFX2026X.AVIF' },
   { id: 'zorgz',           name: 'Zorgz',           image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Zorgz.jpg' },
+  { id: 'slonks',          name: 'Slonks',          image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Slonks.jpg' },
+  { id: 'goblynz',         name: 'Goblynz',         image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Goblynz.jpg' },
+  { id: 'delmundos',       name: 'DelMundos',       image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/Delmundos.jpg' },
+  { id: 'the-florentines', name: 'The Florentines', image: 'https://lbcnvlvdrjsnpvxxqzzp.supabase.co/storage/v1/object/public/Planetslog/Communities/The-Florentines.jpg' },
 ];
 
-const TOTAL_SPOTS = 300;
+const TOTAL_SPOTS = 80;
 const CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgKmB-kwiKyh7Xeo-JOmwcmdfNi99LMXCl5_RoypTknt419Io5w84rr41HffgdNOz2pxkTVHXBnqzP/pub?output=csv';
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQDZKtkyFRlQeVrIjg1L6LKle2YgadJy2m4jBVwbXyT199H0HxSL3LQ_lCd1OPZy8-WGRpk6_QECbIT/pub?output=csv';
 
 const isValidAddress = (a: string) => /^0x[a-fA-F0-9]{40}$/.test(a.trim());
 
@@ -104,7 +97,7 @@ export default function CommunityFrens() {
 
     if (totalClaimed >= TOTAL_SPOTS) {
       setStatus('error');
-      setErrorMsg('All 300 spots have been claimed.');
+      setErrorMsg('All 80 spots have been claimed.');
       return;
     }
 
@@ -180,7 +173,7 @@ export default function CommunityFrens() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-4 gap-3 mb-8"
+          className="grid grid-cols-5 gap-3 mb-8"
         >
           {COMMUNITIES.map((c, i) => (
             <motion.div
